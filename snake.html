@@ -1,0 +1,150 @@
+<canvas id="canvas" width="300" height="300"></canvas>
+<script src="web-lib/processing.js"></script>
+<script src="web-lib/functional-light.js"></script>
+<script>
+  //Vamos a usar http://processingjs.org/
+
+  // Importamos las librerias
+  let { append, cons, first, isEmpty, isList, length, rest } = functionalLight;
+
+  function make(data, attribute) {
+    return Object.assign({}, data, attribute);
+  } 
+  /*pop:list->list
+Quita el último elemento de una lista
+pop([1,2,3])->[1,2]
+pop([4,0,5,9,7])->[4,0,5,9]
+*/
+function pop(list) {
+    if(length(list)==1) {
+        return [];
+    } else {
+        return cons(first(list),pop(rest(list)));
+    }
+}
+
+  const mySnake = [{ x: 100, y: 100 }, { x: 90, y: 100 }, { x: 80, y: 100 },{ x:70, y:100}];
+  function sketchProc(processing) {
+
+    /**
+     * Esto se llama antes de iniciar el juego
+     */
+    processing.setup = function () {
+      processing.frameRate(10);
+      processing.size(400, 400);
+      processing.background(10, 200, 50);
+      processing.state = { x: 100, y: 100, width: 10, height: 10, direction:"", snake: mySnake, food:{x:Math.round(Math.random()*300), y:Math.round(Math.random()*300), width:10, height:10, r: 210, g:210, b:100, existance:false}};
+    }
+
+    /**
+    * Actualiza el mundo en cada tic del reloj. Retorna el nuevo estado del mundo
+    */
+    processing.onTic = function (world) {
+      switch (world.direction) {
+        case "UP":
+        return make(world,{snake:cons({x: first(world.snake).x, y: first(world.snake).y - 10},pop(world.snake))});
+        break;
+        case "DOWN":
+        return make(world,{snake:cons({x: first(world.snake).x, y: first(world.snake).y + 10},pop(world.snake))});
+        break;
+        case "LEFT":
+        return make(world,{snake:cons({x: first(world.snake).x - 10, y: first(world.snake).y},pop(world.snake))});
+        break;
+        case "RIGHT":
+        return make(world,{snake:cons({x: first(world.snake).x + 10, y: first(world.snake).y},pop(world.snake))});
+        break;
+        default:
+        return make(world,{});
+      }
+    }
+ //POR QUÉ FUNCIONA SOLO AL HACER CLICK EN EL CUADRADO?
+ 
+    /**
+    * Actualiza el mundo cada vez que se oprime una tecla. Retorna el nuevo stado del mundo
+    */
+    processing.onKeyEvent = function (world, keyCode) {
+      switch (keyCode) {
+        case processing.UP:
+        if(world.direction=="DOWN") {
+          return make(world, {direction:"DOWN"})
+        }
+          return make(world, { direction: "UP" });
+          break;
+        case processing.DOWN:
+        if(world.direction=="UP") {
+          return make(world, {direction:"UP"})
+        }
+          return make(world, { direction: "DOWN" });
+          break;
+        case processing.LEFT:
+        if(world.direction=="RIGHT") {
+          return make(world, {direction:"RIGHT"})
+        }
+          return make(world, { direction: "LEFT"});
+          break;
+        case processing.RIGHT:
+        if(world.direction=="LEFT") {
+          return make(world, {direction:"LEFT"})
+        }
+          return make(world, { direction: "RIGHT" });
+          break;
+        case 107:
+          return make(world, { height: world.height + 5 });
+          break;
+        case 109:
+          return make(world, { height: world.height - 5 });
+          break;
+        case 187:
+          return make(world,{width: world.width + 5});
+          break;
+        case 189:
+          return make(world,{width: world.width - 5});
+          break;
+        default:
+          console.log(keyCode);
+          return make(world, {});
+      }
+    }
+
+    // Dibuja algo en el canvas. Aqui se pone todo lo que quieras pintar
+    processing.drawGame = function (world) {
+      processing.background(10, 200, 50);
+      
+      
+      function drawSnake(snake) {
+        snake.forEach(part => {
+          processing.fill(240, 240, 240);
+          processing.rect(part.x, part.y, world.width, world.height);
+        })
+      }
+      drawSnake(world.snake);
+      
+      function drawFood(food) {
+        if(food.existance==false) {
+          processing.fill(food.r, food.g, food.b);
+          processing.ellipse(food.x, food.y, food.width, food.height);
+          return make(food,{existance:true});
+        }
+      }
+      drawFood(world.food);
+    }
+
+    // Esta es la función que pinta todo. Se ejecuta 60 veces por segundo. 
+    // No cambie esta función. Su código debe ir en drawGame
+    processing.draw = function () {
+      processing.drawGame(processing.state);
+      processing.state = processing.onTic(processing.state);
+    };
+
+    // Esta función se ejecuta cada vez que presionamos una tecla. 
+    // No cambie esta función. Su código debe ir en onKeyEvent
+    processing.keyPressed = function () {
+      processing.state = processing.onKeyEvent(processing.state, processing.keyCode);
+    }
+  }
+
+  var canvas = document.getElementById("canvas");
+
+  // Adjuntamos nuestro sketch al framework de processing
+  var processingInstance = new Processing(canvas, sketchProc);
+</script>
