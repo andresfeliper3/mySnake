@@ -23,7 +23,23 @@ function pop(list) {
     }
 }
 
+/*distance:Object,Object -> Number
+ Halla la distancia entre dos puntos (objetos) usando el teorema de Pitágoras
+ */
+ function distance(p1,p2) {
+    return pitagoras(p1.x-p2.x, p1.y-p2.y);
+ }
+
+ /*pitagoras:Number,Number-> Number
+ Halla la hipotenusa dados los dos catetos
+ */
+ function pitagoras(a,b) {
+    return Math.sqrt(Math.pow(a,2) + Math.pow(b,2));
+ }
+
   const mySnake = [{ x: 100, y: 100 }, { x: 90, y: 100 }, { x: 80, y: 100 },{ x:70, y:100}];
+  const myFood = {x:(Math.floor(Math.random()*30)*10), y:(Math.floor(Math.random()*30)*10), width:10, height:10, r: 210, g:210, b:100, existance:false}
+
   function sketchProc(processing) {
 
     /**
@@ -33,7 +49,7 @@ function pop(list) {
       processing.frameRate(10);
       processing.size(400, 400);
       processing.background(10, 200, 50);
-      processing.state = { x: 100, y: 100, width: 10, height: 10, direction:"", snake: mySnake, food:{x:Math.round(Math.random()*300), y:Math.round(Math.random()*300), width:10, height:10, r: 210, g:210, b:100, existance:false}};
+      processing.state = { x: 100, y: 100, width: 10, height: 10, direction:"", snake: mySnake, food:myFood};
     }
 
     /**
@@ -42,20 +58,39 @@ function pop(list) {
     processing.onTic = function (world) {
       switch (world.direction) {
         case "UP":
+
+        if(distance(first(rest(world.snake)),{x:world.food.x, y:world.food.y})<1) {
+          return make(world,{snake:cons({x: first(world.snake).x, y: first(world.snake).y - 10},world.snake)});
+        } else {
         return make(world,{snake:cons({x: first(world.snake).x, y: first(world.snake).y - 10},pop(world.snake))});
+        }
         break;
         case "DOWN":
+        if(distance(first(rest(world.snake)),{x:world.food.x, y:world.food.y})<1) {
+          return make(world,{snake:cons({x: first(world.snake).x, y: first(world.snake).y+ 10},world.snake)});
+        } else {
         return make(world,{snake:cons({x: first(world.snake).x, y: first(world.snake).y + 10},pop(world.snake))});
+        }
         break;
         case "LEFT":
-        return make(world,{snake:cons({x: first(world.snake).x - 10, y: first(world.snake).y},pop(world.snake))});
+
+        if(distance(first(rest(world.snake)),{x:world.food.x, y:world.food.y})<1) {
+          return make(world,{snake:cons({x: first(world.snake).x-10, y: first(world.snake).y},world.snake)});
+        } else {
+        return make(world,{snake:cons({x: first(world.snake).x-10, y: first(world.snake).y },pop(world.snake))});
+        }
         break;
         case "RIGHT":
-        return make(world,{snake:cons({x: first(world.snake).x + 10, y: first(world.snake).y},pop(world.snake))});
+        if(distance(first(rest(world.snake)),{x:world.food.x, y:world.food.y})<1) {
+          return make(world,{snake:cons({x: first(world.snake).x+10, y: first(world.snake).y},world.snake)});
+        } else {
+        return make(world,{snake:cons({x: first(world.snake).x+10, y: first(world.snake).y},pop(world.snake))});
+        }
         break;
         default:
         return make(world,{});
       }
+    
     }
  //POR QUÉ FUNCIONA SOLO AL HACER CLICK EN EL CUADRADO?
  
@@ -104,6 +139,7 @@ function pop(list) {
           console.log(keyCode);
           return make(world, {});
       }
+      
     }
 
     // Dibuja algo en el canvas. Aqui se pone todo lo que quieras pintar
@@ -122,11 +158,20 @@ function pop(list) {
       function drawFood(food) {
         if(food.existance==false) {
           processing.fill(food.r, food.g, food.b);
-          processing.ellipse(food.x, food.y, food.width, food.height);
+          processing.rect(food.x, food.y, food.width, food.height);
           return make(food,{existance:true});
         }
       }
       drawFood(world.food);
+
+      function eatFood(world) {
+        
+      }
+      eatFood(world);
+
+      function growSnake(snake) {
+        
+      }
     }
 
     // Esta es la función que pinta todo. Se ejecuta 60 veces por segundo. 
