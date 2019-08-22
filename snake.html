@@ -10,6 +10,8 @@
   function make(data, attribute) {
     return Object.assign({}, data, attribute);
   } 
+
+  //FUNCIONES
   /*pop:list->list
 Quita el último elemento de una lista
 pop([1,2,3])->[1,2]
@@ -22,7 +24,16 @@ function pop(list) {
         return cons(first(list),pop(rest(list)));
     }
 }
-
+/*movement
+Recibe el world, una variable y la dirección y retorna el movimiento 
+*/
+function movement(world,a,direction) {
+  if(distance(first(world.snake),{x:world.food.x, y:world.food.y})<1) {
+          return make(world,{food:make(world.food,{x:(Math.floor(Math.random()*30)*10), y:(Math.floor(Math.random()*30)*10)}),snake:cons({x: first(world.snake).x, y: first(world.snake).y - 10},world.snake),});
+        } else {
+        return make(world,{snake:cons({x: first(world.snake).x, y: first(world.snake).y - 10},pop(world.snake))});
+        }
+}
 /*distance:Object,Object -> Number
  Halla la distancia entre dos puntos (objetos) usando el teorema de Pitágoras
  */
@@ -37,7 +48,7 @@ function pop(list) {
     return Math.sqrt(Math.pow(a,2) + Math.pow(b,2));
  }
 
-  const mySnake = [{ x: 101, y: 100 }, { x: 90, y: 100 }, { x: 80, y: 100 },{ x:70, y:100}];
+  const mySnake = [{ x: 100, y: 100 }, { x: 90, y: 100 }, { x: 80, y: 100 },{ x:70, y:100}];
   const myFood = {x:(Math.floor(Math.random()*30)*10), y:(Math.floor(Math.random()*30)*10), width:10, height:10, r: 210, g:210, b:100, existance:false}
 
   function sketchProc(processing) {
@@ -58,9 +69,8 @@ function pop(list) {
     processing.onTic = function (world) {
       switch (world.direction) {
         case "UP":
-
-        if(distance(first(rest(world.snake)),{x:world.food.x, y:world.food.y})<1) {
-          return make(world,{snake:cons({x: first(world.snake).x, y: first(world.snake).y - 10},world.snake)});
+        if(distance(first(world.snake),{x:world.food.x, y:world.food.y})<1) {
+          return make(world,{food:make(world.food,{x:(Math.floor(Math.random()*30)*10), y:(Math.floor(Math.random()*30)*10)}),snake:cons({x: first(world.snake).x, y: first(world.snake).y - 10},world.snake),});
         } else {
         return make(world,{snake:cons({x: first(world.snake).x, y: first(world.snake).y - 10},pop(world.snake))});
         }
@@ -159,7 +169,7 @@ function pop(list) {
         if(food.existance==false) {
           processing.fill(food.r, food.g, food.b);
           processing.rect(food.x, food.y, food.width, food.height);
-          return make(food,{existance:true});
+    
         }
       }
       drawFood(world.food);
