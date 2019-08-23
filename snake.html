@@ -29,8 +29,11 @@ Recibe el world, una variable y la dirección y retorna el movimiento
 */
 function movement(world,ax,ay) {
   if(first(world.snake).x==world.food.x && first(world.snake).y==world.food.y) {
+    //Comida
           return make(world,{food:make(world.food,{x:(Math.floor(Math.random()*30)*10), y:(Math.floor(Math.random()*30)*10)}),snake:cons({x: first(world.snake).x + ax, y: first(world.snake).y + ay},world.snake),});
-        } else {
+         } 
+        else {
+          //Movimiento
         return make(world,{snake:cons({x: first(world.snake).x + ax , y: first(world.snake).y + ay},pop(world.snake))});
         }
 }
@@ -62,19 +65,24 @@ function movement(world,ax,ay) {
       processing.background(10, 200, 50);
       processing.state = { x: 100, y: 100, width: 10, height: 10, direction:"", snake: mySnake, food:myFood, alive:true};
     }
-
+    //Detiene el juego si la cabeza se estrella con el cuerpo del snake
     function crashBody(body,head,world){
         if(isEmpty(body)) {
           return make(world,{})
         } else if(head.x == first(body).x && head.y == first(body).y) {
-          processing.noLoop();
+          processing.noLoop(); //Detiene el juego
           return make(world,{alive:false})
         } 
         else {
           return crashBody(rest(body),head);
         }
             
-      } 
+      }
+      //Hace aparecer al snake por el otro lado del juego
+      function reAppear(world,positionx,positiony){
+        return make(world,{snake:cons({x:first(world.snake).x+positionx, y:first(world.snake).y+positiony},pop(world.snake))});
+      }
+
     /**
     * Actualiza el mundo en cada tic del reloj. Retorna el nuevo estado del mundo
     */
@@ -83,15 +91,27 @@ function movement(world,ax,ay) {
         crashBody(rest(world.snake),first(world.snake),world);
         switch (world.direction) {
           case "UP":
-          return movement(world,0,-10);
+          if(first(rest(world.snake)).y==0) {
+            return reAppear(world,0,400);
+          }
+            return movement(world,0,-10);
           break;
           case "DOWN":
+          if(first(rest(world.snake)).y==400) {
+            return reAppear(world,0,-410);
+          }
           return movement(world,0,10);
           break;
           case "LEFT":
+          if(first(rest(world.snake)).x==0) {
+            return reAppear(world,400,0);
+          }
           return movement(world,-10,0);
           break;
           case "RIGHT":
+          if(first(rest(world.snake)).x==400) {
+            return reAppear(world,-410,0);
+          }
           return movement(world,10,0);
           break;
           default:
