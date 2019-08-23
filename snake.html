@@ -27,11 +27,11 @@ function pop(list) {
 /*movement
 Recibe el world, una variable y la dirección y retorna el movimiento 
 */
-function movement(world,a,direction) {
-  if(distance(first(world.snake),{x:world.food.x, y:world.food.y})<1) {
-          return make(world,{food:make(world.food,{x:(Math.floor(Math.random()*30)*10), y:(Math.floor(Math.random()*30)*10)}),snake:cons({x: first(world.snake).x, y: first(world.snake).y - 10},world.snake),});
+function movement(world,ax,ay) {
+  if(first(world.snake).x==world.food.x && first(world.snake).y==world.food.y) {
+          return make(world,{food:make(world.food,{x:(Math.floor(Math.random()*30)*10), y:(Math.floor(Math.random()*30)*10)}),snake:cons({x: first(world.snake).x + ax, y: first(world.snake).y + ay},world.snake),});
         } else {
-        return make(world,{snake:cons({x: first(world.snake).x, y: first(world.snake).y - 10},pop(world.snake))});
+        return make(world,{snake:cons({x: first(world.snake).x + ax , y: first(world.snake).y + ay},pop(world.snake))});
         }
 }
 /*distance:Object,Object -> Number
@@ -60,48 +60,48 @@ function movement(world,a,direction) {
       processing.frameRate(10);
       processing.size(400, 400);
       processing.background(10, 200, 50);
-      processing.state = { x: 100, y: 100, width: 10, height: 10, direction:"", snake: mySnake, food:myFood};
+      processing.state = { x: 100, y: 100, width: 10, height: 10, direction:"", snake: mySnake, food:myFood, alive:true};
     }
 
+    function crashBody(body,head,world){
+        if(isEmpty(body)) {
+          return make(world,{})
+        } else if(head.x == first(body).x && head.y == first(body).y) {
+          processing.noLoop();
+          return make(world,{alive:false})
+        } 
+        else {
+          return crashBody(rest(body),head);
+        }
+            
+      } 
     /**
     * Actualiza el mundo en cada tic del reloj. Retorna el nuevo estado del mundo
     */
     processing.onTic = function (world) {
-      switch (world.direction) {
-        case "UP":
-        if(distance(first(world.snake),{x:world.food.x, y:world.food.y})<1) {
-          return make(world,{food:make(world.food,{x:(Math.floor(Math.random()*30)*10), y:(Math.floor(Math.random()*30)*10)}),snake:cons({x: first(world.snake).x, y: first(world.snake).y - 10},world.snake),});
-        } else {
-        return make(world,{snake:cons({x: first(world.snake).x, y: first(world.snake).y - 10},pop(world.snake))});
+      if(world.alive==true){
+        crashBody(rest(world.snake),first(world.snake),world);
+        switch (world.direction) {
+          case "UP":
+          return movement(world,0,-10);
+          break;
+          case "DOWN":
+          return movement(world,0,10);
+          break;
+          case "LEFT":
+          return movement(world,-10,0);
+          break;
+          case "RIGHT":
+          return movement(world,10,0);
+          break;
+          default:
+          return make(world,{});
         }
-        break;
-        case "DOWN":
-        if(distance(first(rest(world.snake)),{x:world.food.x, y:world.food.y})<1) {
-          return make(world,{snake:cons({x: first(world.snake).x, y: first(world.snake).y+ 10},world.snake)});
-        } else {
-        return make(world,{snake:cons({x: first(world.snake).x, y: first(world.snake).y + 10},pop(world.snake))});
-        }
-        break;
-        case "LEFT":
-
-        if(distance(first(rest(world.snake)),{x:world.food.x, y:world.food.y})<1) {
-          return make(world,{snake:cons({x: first(world.snake).x-10, y: first(world.snake).y},world.snake)});
-        } else {
-        return make(world,{snake:cons({x: first(world.snake).x-10, y: first(world.snake).y },pop(world.snake))});
-        }
-        break;
-        case "RIGHT":
-        if(distance(first(rest(world.snake)),{x:world.food.x, y:world.food.y})<1) {
-          return make(world,{snake:cons({x: first(world.snake).x+10, y: first(world.snake).y},world.snake)});
-        } else {
-        return make(world,{snake:cons({x: first(world.snake).x+10, y: first(world.snake).y},pop(world.snake))});
-        }
-        break;
-        default:
-        return make(world,{});
       }
+      
     
     }
+
  //POR QUÉ FUNCIONA SOLO AL HACER CLICK EN EL CUADRADO?
  
     /**
@@ -133,20 +133,8 @@ function movement(world,a,direction) {
         }
           return make(world, { direction: "RIGHT" });
           break;
-        case 107:
-          return make(world, { height: world.height + 5 });
-          break;
-        case 109:
-          return make(world, { height: world.height - 5 });
-          break;
-        case 187:
-          return make(world,{width: world.width + 5});
-          break;
-        case 189:
-          return make(world,{width: world.width - 5});
-          break;
         default:
-          console.log(keyCode);
+          
           return make(world, {});
       }
       
@@ -173,15 +161,10 @@ function movement(world,a,direction) {
         }
       }
       drawFood(world.food);
-
-      function eatFood(world) {
-        
-      }
-      eatFood(world);
-
-      function growSnake(snake) {
-        
-      }
+    
+     
+     // crashBody(rest(world.snake),first(world.snake));
+      
     }
 
     // Esta es la función que pinta todo. Se ejecuta 60 veces por segundo. 
