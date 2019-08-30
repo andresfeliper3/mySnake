@@ -1,4 +1,4 @@
-<canvas id="canvas" width="300" height="300"></canvas>
+<canvas id="canvas" width="500" height="500"></canvas>
 <script src="web-lib/processing.js"></script>
 <script src="web-lib/functional-light.js"></script>
 <script>
@@ -24,33 +24,32 @@ function pop(list) {
         return cons(first(list),pop(rest(list)));
     }
 }
+
+/*Reposiciona la comida, aumenta el score y hace que el snake crezca en 1*/
+function eating(world,ax,ay) {
+  return make(world,{food:make(world.food,{x:(Math.floor(Math.random()*30)*10), y:(Math.floor(Math.random()*30)*10)}),
+  snake:cons({x: first(world.snake).x + ax, y: first(world.snake).y + ay},world.snake),
+  score:world.score+score1});
+  
+}
 /*movement
-Recibe el world, una variable y la dirección y retorna el movimiento 
+Controla el movimiento del snake normalmnte y cuando come  
 */
 function movement(world,ax,ay) {
+  //Acción de comer
   if(first(world.snake).x==world.food.x && first(world.snake).y==world.food.y) {
-    //Comida
-          return make(world,{food:make(world.food,{x:(Math.floor(Math.random()*30)*10), y:(Math.floor(Math.random()*30)*10)}),snake:cons({x: first(world.snake).x + ax, y: first(world.snake).y + ay},world.snake),});
-         } 
-        else {
-          //Movimiento
+    return eating(world,ax,ay);
+   } else {
+     //Movimiento
         return make(world,{snake:cons({x: first(world.snake).x + ax , y: first(world.snake).y + ay},pop(world.snake))});
-        }
+  }
 }
-/*distance:Object,Object -> Number
- Halla la distancia entre dos puntos (objetos) usando el teorema de Pitágoras
- */
- function distance(p1,p2) {
-    return pitagoras(p1.x-p2.x, p1.y-p2.y);
- }
-
- /*pitagoras:Number,Number-> Number
- Halla la hipotenusa dados los dos catetos
- */
- function pitagoras(a,b) {
-    return Math.sqrt(Math.pow(a,2) + Math.pow(b,2));
- }
-
+  //Dimensiones del juego
+  const gameSize = {height:500,width:500};
+  //Tamaño de cada segmento del snake
+  const size = 10;
+  //Aumento del score al comer
+  const score1 = 100; 
   const mySnake = [{ x: 100, y: 100 }, { x: 90, y: 100 }, { x: 80, y: 100 },{ x:70, y:100}];
   const myFood = {x:(Math.floor(Math.random()*30)*10), y:(Math.floor(Math.random()*30)*10), width:10, height:10, r: 210, g:210, b:100, existance:false}
 
@@ -61,68 +60,75 @@ function movement(world,ax,ay) {
      */
     processing.setup = function () {
       processing.frameRate(10);
-      processing.size(400, 400);
+      processing.size(gameSize.width, gameSize.height);
       processing.background(10, 200, 50);
-      processing.state = { x: 100, y: 100, width: 10, height: 10, direction:"", snake: mySnake, food:myFood, alive:true};
+      processing.state = {
+        x: 100, 
+        y: 100, 
+        direction:"", 
+        snake: mySnake, 
+        food:myFood,
+        score:0 
+        };
     }
-    //Detiene el juego si la cabeza se estrella con el cuerpo del snake
+    /*Detiene el juego si la cabeza se estrella con el cuerpo del snake.
+    Retorna false si no se está chocando y true en caso contrario.
+    */
     function crashBody(body,head,world){
         if(isEmpty(body)) {
-          return make(world,{})
+          return false;
         } else if(head.x == first(body).x && head.y == first(body).y) {
           processing.noLoop(); //Detiene el juego
-          return make(world,{alive:false})
+          return true;
         } 
         else {
-          return crashBody(rest(body),head);
+          return crashBody(rest(body),head,world);
         }
             
       }
       //Hace aparecer al snake por el otro lado del juego
       function reAppear(world,positionx,positiony){
-        return make(world,{snake:cons({x:first(world.snake).x+positionx, y:first(world.snake).y+positiony},pop(world.snake))});
+        return make(world,{snake:cons({x:first(world.snake).x+positionx,
+         y:first(world.snake).y+positiony},pop(world.snake))});
       }
 
     /**
     * Actualiza el mundo en cada tic del reloj. Retorna el nuevo estado del mundo
     */
     processing.onTic = function (world) {
-      if(world.alive==true){
-        crashBody(rest(world.snake),first(world.snake),world);
-        switch (world.direction) {
-          case "UP":
-          if(first(rest(world.snake)).y==0) {
-            return reAppear(world,0,400);
-          }
-            return movement(world,0,-10);
-          break;
-          case "DOWN":
-          if(first(rest(world.snake)).y==400) {
-            return reAppear(world,0,-410);
-          }
-          return movement(world,0,10);
-          break;
-          case "LEFT":
-          if(first(rest(world.snake)).x==0) {
-            return reAppear(world,400,0);
-          }
-          return movement(world,-10,0);
-          break;
-          case "RIGHT":
-          if(first(rest(world.snake)).x==400) {
-            return reAppear(world,-410,0);
-          }
-          return movement(world,10,0);
-          break;
-          default:
-          return make(world,{});
+        //Crashbody revisa que no se esté chocando                  
+        if(crashBody(rest(world.snake),first(world.snake),world)==false){
+          switch (world.direction) {
+            case "UP":
+            if(first(world.snake).y==0) {
+              return reAppear(world,0,gameSize.height);
+            }
+              return movement(world,0,-10);
+            break;
+            case "DOWN":
+            if(first(world.snake).y==gameSize.height) {
+              return reAppear(world,0,-gameSize.height);
+            }
+            return movement(world,0,10);
+            break;
+            case "LEFT":
+            if(first(world.snake).x==0) {
+              return reAppear(world,gameSize.width,0);
+            }
+            return movement(world,-10,0);
+            break;
+            case "RIGHT":
+            if(first(world.snake).x==gameSize.width) {
+              return reAppear(world,-gameSize.width,0);
+            }
+            return movement(world,10,0);
+            break;
+            default:
+            return make(world,{});
+          } 
         }
-      }
-      
-    
     }
 
- //POR QUÉ FUNCIONA SOLO AL HACER CLICK EN EL CUADRADO?
  
     /**
     * Actualiza el mundo cada vez que se oprime una tecla. Retorna el nuevo stado del mundo
@@ -163,15 +169,24 @@ function movement(world,ax,ay) {
     // Dibuja algo en el canvas. Aqui se pone todo lo que quieras pintar
     processing.drawGame = function (world) {
       processing.background(10, 200, 50);
-      
-      
+
+      //Pinta el score sencillo
+      processing.text("SCORE: "+world.score, 20, 20);
+      //Dibuja únicamente el cuerpo del snake
       function drawSnake(snake) {
         snake.forEach(part => {
           processing.fill(240, 240, 240);
-          processing.rect(part.x, part.y, world.width, world.height);
+          processing.rect(part.x, part.y, size,size);
         })
       }
-      drawSnake(world.snake);
+      drawSnake(rest(world.snake));
+
+      //Dibuja únicamente la cabeza del snake
+      function drawSnakeHead(head) {
+        processing.fill(0,0,0);
+        processing.rect(head.x, head.y, size, size);
+      }
+      drawSnakeHead(world.snake[0]);
       
       function drawFood(food) {
         if(food.existance==false) {
@@ -183,7 +198,6 @@ function movement(world,ax,ay) {
       drawFood(world.food);
     
      
-     // crashBody(rest(world.snake),first(world.snake));
       
     }
 
