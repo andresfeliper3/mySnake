@@ -25,12 +25,33 @@ function pop(list) {
     }
 }
 
+//DIspara mientras mantiene el movimiento
+function shoot(world, ax, ay) {
+ if((world.bullets.x <= 400 && world.bullets.x >=0) && (world.bullets.y <=400 && world.bullets.y >= 0)) {
+         return make(world,{bullets:make(world.bullets,{
+          x:world.bullets.x + world.fixed.x,
+         y:world.bullets.y + world.fixed.y   
+         }),
+         snake:cons({x: first(world.snake).x + ax , y: first(world.snake).y + ay},pop(world.snake)),
+         });
+  } else {
+    return make(world,{shooting:false,
+      bullets:make(world.bullets,{x:world.snake[0].x, y:world.snake[0].y})});
+  }
+}
 /*Reposiciona la comida, aumenta el score y hace que el snake crezca en 1*/
 function eating(world,ax,ay) {
   return make(world,{food:make(world.food,{x:(Math.floor(Math.random()*30)*10), y:(Math.floor(Math.random()*30)*10)}),
   snake:cons({x: first(world.snake).x + ax, y: first(world.snake).y + ay},world.snake),
   score:world.score+score1});
   
+}
+/*Reposiciona las sandías y aumenta los bullets */
+function eatingWatermelon(world, ax, ay){
+  return make(world,{watermelon:make(world.watermelon,{x:(Math.floor(Math.random()*30)*10), y:(Math.floor(Math.random()*30)*10)}),
+  snake:cons({x: first(world.snake).x + ax, y: first(world.snake).y + ay}, pop(world.snake)),
+  bullets:make(world.bullets,{amount:world.bullets.amount + 1})
+  });
 }
 /*movement
 Controla el movimiento del snake normalmnte y cuando come  
@@ -39,9 +60,16 @@ function movement(world,ax,ay) {
   //Acción de comer
   if(first(world.snake).x==world.food.x && first(world.snake).y==world.food.y) {
     return eating(world,ax,ay);
-   } else {
-     //Movimiento
-        return make(world,{snake:cons({x: first(world.snake).x + ax , y: first(world.snake).y + ay},pop(world.snake))});
+    //Acción de comer sandías
+   } else if(first(world.snake).x==world.watermelon.x && first(world.snake).y==world.watermelon.y){
+    return eatingWatermelon(world,ax,ay);
+    //Acción de disparar
+   } else if(world.shooting) {
+    return shoot(world,ax,ay); 
+   }else {
+      //Movimiento
+        return make(world,{bullets:make(world.bullets,{x:first(world.snake).x + ax, y:first(world.snake).y + ay}),
+          snake:cons({x: first(world.snake).x + ax , y: first(world.snake).y + ay},pop(world.snake))});
   }
 }
   //Dimensiones del juego
@@ -52,6 +80,7 @@ function movement(world,ax,ay) {
   const score1 = 100; 
   const mySnake = [{ x: 100, y: 100 }, { x: 90, y: 100 }, { x: 80, y: 100 },{ x:70, y:100}];
   const myFood = {x:(Math.floor(Math.random()*30)*10), y:(Math.floor(Math.random()*30)*10), width:10, height:10, r: 210, g:210, b:100, existance:false}
+  const myWatermelon = {x:(Math.floor(Math.random()*30)*10),y:(Math.floor(Math.random()*30)*10),width:10,height:10,existance:false};
 
   function sketchProc(processing) {
 
@@ -68,7 +97,11 @@ function movement(world,ax,ay) {
         direction:"", 
         snake: mySnake, 
         food:myFood,
-        score:0 
+        watermelon:myWatermelon,
+        shooting:false,
+        bullets:{amount:0, x:0, y:0, size:10, speed:20},
+        score:0,
+        fixed:{}
         };
     }
     /*Detiene el juego si la cabeza se estrella con el cuerpo del snake.
@@ -78,7 +111,7 @@ function movement(world,ax,ay) {
         if(isEmpty(body)) {
           return false;
         } else if(head.x == first(body).x && head.y == first(body).y) {
-          processing.noLoop(); //Detiene el juego
+         //Reinicia el juego
           return true;
         } 
         else {
@@ -92,13 +125,17 @@ function movement(world,ax,ay) {
          y:first(world.snake).y+positiony},pop(world.snake))});
       }
 
+      
     /**
     * Actualiza el mundo en cada tic del reloj. Retorna el nuevo estado del mundo
     */
+    
     processing.onTic = function (world) {
+      
         //Crashbody revisa que no se esté chocando                  
         if(crashBody(rest(world.snake),first(world.snake),world)==false){
-          switch (world.direction) {
+          
+            switch (world.direction) {
             case "UP":
             if(first(world.snake).y==0) {
               return reAppear(world,0,gameSize.height);
@@ -125,7 +162,18 @@ function movement(world,ax,ay) {
             break;
             default:
             return make(world,{});
-          } 
+          }
+           
+          
+        } else{
+          return make(world,{
+        x: 100, 
+        y: 100, 
+        direction:"", 
+        snake: mySnake, 
+        food:myFood,
+        score:0 
+        });
         }
     }
 
@@ -139,7 +187,7 @@ function movement(world,ax,ay) {
         if(world.direction=="DOWN") {
           return make(world, {direction:"DOWN"})
         }
-          return make(world, { direction: "UP" });
+          return make(world,{direction: "UP"})
           break;
         case processing.DOWN:
         if(world.direction=="UP") {
@@ -159,8 +207,43 @@ function movement(world,ax,ay) {
         }
           return make(world, { direction: "RIGHT" });
           break;
-        default:
+        //Barra espaciadora para disparar  
+        case 32: //PENDIENTE POR OPTIMIZAR
+        if(world.bullets.amount > 0){ 
+          /*Si hay al menos una bala, cambia su estado a true, disminuye en 1 
+        la cantidad de balas y guarda en fixed la dirección que debe conservar la bala.*/
+          switch(world.direction) {
+            case "UP":
+            return make(world, {shooting:true, 
+            bullets:make(world.bullets,{amount:world.bullets.amount - 1}),
+            fixed:make(world.fixed,{x:0,y:-20})});
+            break;
+            case "DOWN":
+            return make(world, {shooting:true,
+            bullets:make(world.bullets,{amount:world.bullets.amount - 1}),
+            fixed:make(world.fixed,{x:0,y:20})});
+            break;
+            case "RIGHT":
+            return make(world, {shooting:true,
+            bullets:make(world.bullets,{amount:world.bullets.amount - 1}),
+            fixed:make(world.fixed,{x:20,y:0})});
+            break;
+            case "LEFT":
+            return make(world, {shooting:true,
+            bullets:make(world.bullets,{amount:world.bullets.amount - 1}),
+            fixed:make(world.fixed,{x:-20,y:0})});
+            break;
+            default:
+            return make(world,{});
+          }
           
+          //console.log(world.bullets.amount)
+        } else{
+          return make(world,{});
+        }    
+        break;
+        default:
+      
           return make(world, {});
       }
       
@@ -170,8 +253,10 @@ function movement(world,ax,ay) {
     processing.drawGame = function (world) {
       processing.background(10, 200, 50);
 
-      //Pinta el score sencillo
+      //Pinta el score sencillo 
       processing.text("SCORE: "+world.score, 20, 20);
+      //Pinta los bullets sencillo
+      processing.text("BALAS: "+world.bullets.amount, 20, 40);
       //Dibuja únicamente el cuerpo del snake
       function drawSnake(snake) {
         snake.forEach(part => {
@@ -187,7 +272,16 @@ function movement(world,ax,ay) {
         processing.rect(head.x, head.y, size, size);
       }
       drawSnakeHead(world.snake[0]);
-      
+
+      //Dibuja las balas
+      function drawBullets(world,bullets) {
+        if(world.shooting==true) {
+          processing.fill(0,0,0);
+          processing.ellipse(bullets.x, bullets.y, bullets.size, bullets.size);
+        }
+      }
+      drawBullets(world, world.bullets);
+      //Dibuja la comida
       function drawFood(food) {
         if(food.existance==false) {
           processing.fill(food.r, food.g, food.b);
@@ -196,6 +290,15 @@ function movement(world,ax,ay) {
         }
       }
       drawFood(world.food);
+
+      //Dibujaría las sandías
+      function drawWatermelons(watermelon) {
+        if(watermelon.existance==false){
+          processing.fill(240,0,0);
+          processing.rect(watermelon.x, watermelon.y, watermelon.width, watermelon.height);
+        }
+      }
+      drawWatermelons(world.watermelon);
     
      
       
