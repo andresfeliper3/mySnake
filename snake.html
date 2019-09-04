@@ -27,7 +27,7 @@ function pop(list) {
 
 //DIspara mientras mantiene el movimiento
 function shoot(world, ax, ay) {
- if((world.bullets.x <= 400 && world.bullets.x >=0) && (world.bullets.y <=400 && world.bullets.y >= 0)) {
+ if((world.bullets.x <= 500 && world.bullets.x >=0) && (world.bullets.y <=500 && world.bullets.y >= 0)) {
          return make(world,{bullets:make(world.bullets,{
           x:world.bullets.x + world.fixed.x,
          y:world.bullets.y + world.fixed.y   
@@ -66,11 +66,26 @@ function movement(world,ax,ay) {
     //Acción de disparar
    } else if(world.shooting) {
     return shoot(world,ax,ay); 
+
+   }else if(world.score == 100){
+    return moveCopter(world,ax,ay);
    }else {
       //Movimiento
         return make(world,{bullets:make(world.bullets,{x:first(world.snake).x + ax, y:first(world.snake).y + ay}),
           snake:cons({x: first(world.snake).x + ax , y: first(world.snake).y + ay},pop(world.snake))});
   }
+}
+
+function moveCopter(world,ax,ay){ 
+    
+      if(world.copter.body[0].x == 250) {
+    return make(world,{inCopter: true,snake:cons({x: first(world.snake).x + ax , y: first(world.snake).y + ay},pop(world.snake))});
+
+  }else if(world.inCopter==false) {
+        return make(world,{inCopter:false, copter: make(world.copter,{body: cons({x:first(world.copter.body).x+10,y:first(world.copter.body).y},pop(world.copter.body)),
+                                                                    wings: [make(world.copter.wings[0],{x: world.copter.body[0].x}),make(world.copter.wings[1],{x: world.copter.body[0].x})]})
+                                                                    ,snake:cons({x: first(world.snake).x + ax , y: first(world.snake).y + ay},pop(world.snake))})
+}
 }
   //Dimensiones del juego
   const gameSize = {height:500,width:500};
@@ -81,7 +96,8 @@ function movement(world,ax,ay) {
   const mySnake = [{ x: 100, y: 100 }, { x: 90, y: 100 }, { x: 80, y: 100 },{ x:70, y:100}];
   const myFood = {x:(Math.floor(Math.random()*30)*10), y:(Math.floor(Math.random()*30)*10), width:10, height:10, r: 210, g:210, b:100, existance:false}
   const myWatermelon = {x:(Math.floor(Math.random()*30)*10),y:(Math.floor(Math.random()*30)*10),width:10,height:10,existance:false};
-  const myCopter = [{x:250,y:250},{x:240,y:250},{x:240,y:240},{x:240,y:260},{x:230,y:250},{x:220,y:250},]
+  const myCopter = {body: [{x:0,y:250},{x:-10,y:250},{x:-20,y:250},{x:-30,y:250}],
+                    wings:[{x:-10,y:240},{x:-10,y:260}]}
 
   function sketchProc(processing) {
 
@@ -103,7 +119,8 @@ function movement(world,ax,ay) {
         shooting:false,
         bullets:{amount:0, x:0, y:0, size:10, speed:20},
         score:0,
-        fixed:{}
+        fixed:{},
+        inCopter:false
         };
         var canvas = document.getElementById("canvas").focus();
     }
@@ -308,9 +325,17 @@ function movement(world,ax,ay) {
       drawWatermelons(world.watermelon);
 
       function drawCopter(copter) {
-        copter.forEach(part => {
+
+        copter.body.forEach(part => {
           processing.fill(240, 240, 240);
           processing.ellipse(part.x, part.y, size,size);
+          
+        })
+
+        copter.wings.forEach(part => {
+          processing.fill(240, 240, 240);
+          processing.ellipse(part.x, part.y, size,size);
+
         })
       }
       drawCopter(world.copter)
