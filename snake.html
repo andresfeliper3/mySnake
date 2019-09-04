@@ -81,6 +81,7 @@ function movement(world,ax,ay) {
   const mySnake = [{ x: 100, y: 100 }, { x: 90, y: 100 }, { x: 80, y: 100 },{ x:70, y:100}];
   const myFood = {x:(Math.floor(Math.random()*30)*10), y:(Math.floor(Math.random()*30)*10), width:10, height:10, r: 210, g:210, b:100, existance:false}
   const myWatermelon = {x:(Math.floor(Math.random()*30)*10),y:(Math.floor(Math.random()*30)*10),width:10,height:10,existance:false};
+  const myCopter = [{x:250,y:250},{x:240,y:250},{x:240,y:240},{x:240,y:260},{x:230,y:250},{x:220,y:250},]
 
   function sketchProc(processing) {
 
@@ -95,7 +96,8 @@ function movement(world,ax,ay) {
         x: 100, 
         y: 100, 
         direction:"", 
-        snake: mySnake, 
+        snake: mySnake,
+        copter: myCopter,
         food:myFood,
         watermelon:myWatermelon,
         shooting:false,
@@ -103,6 +105,7 @@ function movement(world,ax,ay) {
         score:0,
         fixed:{}
         };
+        var canvas = document.getElementById("canvas").focus();
     }
     /*Detiene el juego si la cabeza se estrella con el cuerpo del snake.
     Retorna false si no se está chocando y true en caso contrario.
@@ -258,18 +261,22 @@ function movement(world,ax,ay) {
       //Pinta los bullets sencillo
       processing.text("BALAS: "+world.bullets.amount, 20, 40);
       //Dibuja únicamente el cuerpo del snake
+
+
+
       function drawSnake(snake) {
         snake.forEach(part => {
           processing.fill(240, 240, 240);
-          processing.rect(part.x, part.y, size,size);
+          processing.ellipse(part.x, part.y, size,size);
         })
       }
       drawSnake(rest(world.snake));
 
+
       //Dibuja únicamente la cabeza del snake
       function drawSnakeHead(head) {
         processing.fill(0,0,0);
-        processing.rect(head.x, head.y, size, size);
+        processing.ellipse(head.x, head.y, size, size);
       }
       drawSnakeHead(world.snake[0]);
 
@@ -285,7 +292,7 @@ function movement(world,ax,ay) {
       function drawFood(food) {
         if(food.existance==false) {
           processing.fill(food.r, food.g, food.b);
-          processing.rect(food.x, food.y, food.width, food.height);
+          processing.ellipse(food.x, food.y, food.width, food.height);
     
         }
       }
@@ -295,13 +302,18 @@ function movement(world,ax,ay) {
       function drawWatermelons(watermelon) {
         if(watermelon.existance==false){
           processing.fill(240,0,0);
-          processing.rect(watermelon.x, watermelon.y, watermelon.width, watermelon.height);
+          processing.ellipse(watermelon.x, watermelon.y, watermelon.width, watermelon.height);
         }
       }
       drawWatermelons(world.watermelon);
-    
-     
-      
+
+      function drawCopter(copter) {
+        copter.forEach(part => {
+          processing.fill(240, 240, 240);
+          processing.ellipse(part.x, part.y, size,size);
+        })
+      }
+      drawCopter(world.copter)
     }
 
     // Esta es la función que pinta todo. Se ejecuta 60 veces por segundo. 
