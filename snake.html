@@ -53,10 +53,18 @@ function eatingWatermelon(world, ax, ay){
   bullets:make(world.bullets,{amount:world.bullets.amount + 1})
   });
 }
+
 /*movement
-Controla el movimiento del snake normalmnte y cuando come  
+Hace que el snake se mueva únicamente (sin crecer).
 */
 function movement(world,ax,ay) {
+  return make(world,{bullets:make(world.bullets,{x:first(world.snake).x + ax, y:first(world.snake).y + ay}),
+          snake:cons({x: first(world.snake).x + ax , y: first(world.snake).y + ay},pop(world.snake))});
+}
+/*master
+Evalúa condiciones para establecer los cambios y el comportamiento en el mundo
+*/
+function master(world,ax,ay) {
   //Acción de comer
   if(first(world.snake).x==world.food.x && first(world.snake).y==world.food.y) {
     return eating(world,ax,ay);
@@ -71,18 +79,17 @@ function movement(world,ax,ay) {
     return moveCopter(world,ax,ay);
    }else {
       //Movimiento
-        return make(world,{bullets:make(world.bullets,{x:first(world.snake).x + ax, y:first(world.snake).y + ay}),
-          snake:cons({x: first(world.snake).x + ax , y: first(world.snake).y + ay},pop(world.snake))});
+        return movement(world,ax,ay);
   }
 }
-
+//Al tener un score determinado, controla la entrada del helicóptero (Copter)
 function moveCopter(world,ax,ay){ 
-    
-      if(world.copter.body[0].x == 250) {
-    return make(world,{inCopter: true,snake:cons({x: first(world.snake).x + ax , y: first(world.snake).y + ay},pop(world.snake))});
+    //Revisa si el copter ha llegado a la coordenada final
+   if(world.copter.body[0].x == 250) {
+    return movement(world,ax,ay);
 
-  }else if(world.inCopter==false) {
-        return make(world,{inCopter:false, copter: make(world.copter,{body: cons({x:first(world.copter.body).x+10,y:first(world.copter.body).y},pop(world.copter.body)),
+  }else {
+        return make(world,{ copter: make(world.copter,{body: cons({x:first(world.copter.body).x+10,y:first(world.copter.body).y},pop(world.copter.body)),
                                                                     wings: [make(world.copter.wings[0],{x: world.copter.body[0].x}),make(world.copter.wings[1],{x: world.copter.body[0].x})]})
                                                                     ,snake:cons({x: first(world.snake).x + ax , y: first(world.snake).y + ay},pop(world.snake))})
 }
@@ -120,7 +127,7 @@ function moveCopter(world,ax,ay){
         bullets:{amount:0, x:0, y:0, size:10, speed:20},
         score:0,
         fixed:{},
-        inCopter:false
+        inCopter:true
         };
         var canvas = document.getElementById("canvas").focus();
     }
@@ -160,25 +167,25 @@ function moveCopter(world,ax,ay){
             if(first(world.snake).y==0) {
               return reAppear(world,0,gameSize.height);
             }
-              return movement(world,0,-10);
+              return master(world,0,-10);
             break;
             case "DOWN":
             if(first(world.snake).y==gameSize.height) {
               return reAppear(world,0,-gameSize.height);
             }
-            return movement(world,0,10);
+            return master(world,0,10);
             break;
             case "LEFT":
             if(first(world.snake).x==0) {
               return reAppear(world,gameSize.width,0);
             }
-            return movement(world,-10,0);
+            return master(world,-10,0);
             break;
             case "RIGHT":
             if(first(world.snake).x==gameSize.width) {
               return reAppear(world,-gameSize.width,0);
             }
-            return movement(world,10,0);
+            return master(world,10,0);
             break;
             default:
             return make(world,{});
