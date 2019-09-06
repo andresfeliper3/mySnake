@@ -75,7 +75,7 @@ function master(world,ax,ay) {
    } else if(world.shooting) {
     return shoot(world,ax,ay); 
 
-   }else if(world.score == 100){
+   }else if(world.score >= 100){
     return moveCopter(world,ax,ay);
    }else {
       //Movimiento
