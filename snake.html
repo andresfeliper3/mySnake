@@ -24,7 +24,7 @@ function pop(list) {
     }
 }
 //DIspara mientras mantiene el movimiento
-function shoot(world, ax, ay) {
+function shootCopter(world, ax, ay) {
  if((world.ammo.x <= 500 && world.ammo.x >=0) && (world.ammo.y <=500 && world.ammo.y >= 0)) {
          return make(world,{ammo:make(world.ammo,{
           x:world.ammo.x + world.fixed.x,
@@ -70,7 +70,7 @@ function master(world,ax,ay) {
     return eatingWatermelon(world,ax,ay);
     //Acción de disparar
    } else if(world.shooting) {
-    return shoot(world,ax,ay); 
+    return shootCopter(world,ax,ay); 
    }else if(world.score >= 100){
     return moveCopter(world,ax,ay);
    }else {
