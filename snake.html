@@ -3,8 +3,7 @@
 <script src="web-lib/functional-light.js"></script>
 <script>
   //Vamos a usar http://processingjs.org/
-//EL SUPER CAMBIO 2.0
-let x= 0;
+
   // Importamos las librerias
   let { append, cons, first, isEmpty, isList, length, rest } = functionalLight;
 
@@ -76,7 +75,7 @@ function master(world,ax,ay) {
    } else if(world.shooting) {
     return shoot(world,ax,ay); 
 
-   }else if(world.score == 100){
+   }else if(world.score >= 100){
     return moveCopter(world,ax,ay);
    }else {
       //Movimiento
@@ -125,7 +124,7 @@ function moveCopter(world,ax,ay){
         food:myFood,
         watermelon:myWatermelon,
         shooting:false,
-        bullets:{amount:0, x:0, y:0, size:10, speed:20},
+        bullets:{amount:5, x:0, y:0, size:10, speed:20},
         score:0,
         fixed:{},
         inCopter:true
@@ -237,7 +236,7 @@ function moveCopter(world,ax,ay){
           break;
         //Barra espaciadora para disparar  
         case 32: //PENDIENTE POR OPTIMIZAR
-        if(world.bullets.amount > 0){ 
+        if(world.bullets.amount > 0 && !world.shooting){ 
           /*Si hay al menos una bala, cambia su estado a true, disminuye en 1 
         la cantidad de balas y guarda en fixed la dirección que debe conservar la bala.*/
           switch(world.direction) {
