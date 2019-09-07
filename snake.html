@@ -32,6 +32,10 @@ function shootSnake(world, ax, ay) {
           y:world.bullets.y + world.fixedSnake.y
         }),
          snake:cons({x: world.snake[0].x + ax , y: world.snake[0].y + ay},pop(world.snake)),
+         ammo:make(world.ammo,{
+           x:world.ammo.x + world.fixed.x,
+           y:world.ammo.y + world.fixed.y
+         })
          });
   } else {
     return make(world,{shooting:false,
@@ -77,9 +81,13 @@ function master(world,ax,ay) {
     //Acción de disparar
    } else if(world.shooting) {
       return shootSnake(world,ax,ay);
+      //Acción de reconocer cuando el snake pasa en el rango de disparo del copter
    }else if(world.snake[0].x + world.k == world.copter.body[0].x){
+     console.log("shootingCopter "+world.shootingCopter);
       return ia(world,ax,ay)
-   }else if(world.shootCopter){
+   }else if(world.shootingCopter){ //
+
+   console.log("disparo")
     return shootCopter(world,ax,ay);
    }
    else if(world.score >= 100){
@@ -91,13 +99,14 @@ function master(world,ax,ay) {
 }
 //retorna true si el snake está arriba y false si el snake está abajo del helicóptero
 function positionUp(world){
-  if(world.snake[0].y >= 250){
+  if(world.snake[0].y <= 250){
     return true;
   }else{
     return false;
   }
 }
 // funcion que retorna el valor de K, k es una constante que determina la predicción del disparo del helicóptero
+//Es la distancia respecto a x, a la cual debe estar el snake del helicóptero para que dispara
 function kValue(world){
   switch (world.direction){
     case "UP":
@@ -117,9 +126,10 @@ function kValue(world){
       return 0
   }
 }
- //POR QUÉ AMMO TOMA VALORES QUE NO DEBE TOMAR, ES DECIR CAMBIA SEGÚN EL SNAKE Y NO SEGÚN EL COPTER
-//Disparos del copter
+ 
+//Controla los disparos del copter
 function shootCopter(world,ax,ay) {
+  //Si las balas están en el canvas, las mueve, si no, las reposiciona en el copter
   if((world.ammo.x <= 500 && world.ammo.x >=0) && (world.ammo.y <=500 && world.ammo.y >= 0)) {
          return make(world,{ammo:make(world.ammo,{
           x:world.ammo.x + world.fixed.x,
@@ -136,26 +146,24 @@ function shootCopter(world,ax,ay) {
 
 //Reconocimiento de la posición del snake para iniciar el disparo
 function ia(world,ax,ay){
+  //Si el snake está sobre el eje x del copter
   if(positionUp(world)== true){
         return make(world,{shootingCopter:true,
-          fixed: make(world.fixed,{x:world.copter.body[0].x,y:-20}),//
+          fixed: make(world.fixed,{x:0,y:-20}),//
          // ammo:make(world.ammo,{x:world.copter.body[0].x + ax, y:world.copter.body[0].y -20}),
           snake:cons({x: first(world.snake).x + ax , y: first(world.snake).y + ay},pop(world.snake)),
-          k: kValue(world),//
+         
           bullets:make(world.bullets,{x:first(world.snake).x + ax, y:first(world.snake).y + ay})});
     
   }else{
     return make(world,{shootingCopter:true,
-          fixed: make(world.fixed,{x:world.copter.body[0].x,y:+20}),
+          fixed: make(world.fixed,{x:0,y:20}),
        //   ammo:make(world.ammo,{x:world.copter.body[0].x + ax, y:world.copter.body[0].y + 20}),
           snake:cons({x: first(world.snake).x + ax , y: first(world.snake).y + ay},pop(world.snake)),
-          k: kValue(world),
+          
           bullets:make(world.bullets,{x:first(world.snake).x + ax, y:first(world.snake).y + ay})});
   }
 }
-
-//dispara el helicoptero
-
 
 //Al tener un score determinado, controla la entrada del helicóptero (Copter)
 function moveCopter(world,ax,ay){ 
@@ -197,7 +205,7 @@ function moveCopter(world,ax,ay){
         watermelon:myWatermelon,
         shooting:false,
         ammo:{amount:99999, x:0, y:0, size:10, speed:20},
-        bullets:{amount:99999, x:0, y:0, size:10, speed:20},
+        bullets:{amount:0, x:0, y:0, size:10, speed:20},
         score:0,
         fixed:{},
         fixedSnake: {},
@@ -355,9 +363,10 @@ function moveCopter(world,ax,ay){
       //Pinta el score sencillo 
       processing.text("SCORE: "+world.score, 20, 20);
       //Pinta los ammo sencillo
-      processing.text("BALAS COPTER: "+world.ammo.amount, 20, 40);
-      processing.text("FIXED : "+world.fixed.x + " " + world.fixed.y, 20, 60);
-      processing.text("AMMO: "+world.ammo.x + " " + world.ammo.y, 20, 80);
+      processing.text("BALAS: "+world.bullets.amount, 20, 40);
+     // processing.text("FIXED : "+world.fixed.x + " " + world.fixed.y, 20, 60);
+     // processing.text("AMMO: "+world.ammo.x + " " + world.ammo.y, 20, 80);
+     // processing.text("K: "+world.k, 20, 100);
       //Dibuja únicamente el cuerpo del snake
       function drawSnake(snake) {
         snake.forEach(part => {
@@ -372,7 +381,7 @@ function moveCopter(world,ax,ay){
         processing.ellipse(head.x, head.y, size, size);
       }
       drawSnakeHead(world.snake[0]);
-
+      //Dibuja las balas del snake
       function drawBullets(world,bullets) {
         if(world.shooting==true) {
           processing.fill(0,0,0);
@@ -381,9 +390,9 @@ function moveCopter(world,ax,ay){
       }
       drawBullets(world, world.bullets);
 
-      //Dibuja las balas
+      //Dibuja las balas del copter
       function drawAmmoC(world,ammo) {
-        if(world.shooting==true) {
+        if(world.shootingCopter==true) { //
           processing.fill(0,0,0);
           processing.ellipse(ammo.x, ammo.y, ammo.size, ammo.size);
         }
