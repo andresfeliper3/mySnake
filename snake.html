@@ -84,11 +84,12 @@ function master(world,ax,ay,dx,dy) {
    }else if(world.snake[0].x + world.k == world.ovni.body[0].x){
      
       return ia(world,ax,ay)
-   }else if(world.shootingOvni){ //
-   
+   }else if(world.shootingOvni){ // 
+   //Acción de disparo del ovni
     return shootOvni(world,ax,ay);
    }
-   else if(world.score >= 100){
+   else if(world.score >= 100){ //condición para que el score supere cierto puntaje
+    //movimiento constante del ovni
     return moveOvni(world,ax,ay);
    }else {
       //Movimiento
@@ -168,19 +169,22 @@ function moveOvni(world,ax,ay){
     //Revisa si el ovni ha llegado a la coordenada final
    if(world.ovni.body[0].x == 420) {
     return make(world,{ ovni: make(world.ovni,{body: cons({x:first(world.ovni.body).x+world.ovniDirection,y:first(world.ovni.body).y},pop(world.ovni.body)),
-                                                                    wings: [make(world.ovni.wings[0],{x: world.ovni.body[0].x}),make(world.ovni.wings[1],{x: world.ovni.body[0].x})]}),
+                                                                   // wings: [make(world.ovni.wings[0],{x: world.ovni.body[0].x}),make(world.ovni.wings[1],{x: world.ovni.body[0].x})]
+                                                                  }),
                                                                     snake:cons({x: first(world.snake).x + ax , y: first(world.snake).y + ay},pop(world.snake)),
                                                                     ovniDirection: -10});
   }else if (world.ovni.body[0].x == 0){
 
      return make(world,{ ovni: make(world.ovni,{body: cons({x:first(world.ovni.body).x+world.ovniDirection,y:first(world.ovni.body).y},pop(world.ovni.body)),
-                                                                    wings: [make(world.ovni.wings[0],{x: world.ovni.body[0].x}),make(world.ovni.wings[1],{x: world.ovni.body[0].x})]})
+                                                                  //  wings: [make(world.ovni.wings[0],{x: world.ovni.body[0].x}),make(world.ovni.wings[1],{x: world.ovni.body[0].x})]
+                                                                  })
                                                                     ,snake:cons({x: first(world.snake).x + ax , y: first(world.snake).y + ay},pop(world.snake)),
                                                                     ovniDirection: 10});
     }else{
       
       return make(world,{ ovni: make(world.ovni,{body: cons({x:first(world.ovni.body).x+world.ovniDirection,y:first(world.ovni.body).y},pop(world.ovni.body)),
-                                                                    wings: [make(world.ovni.wings[0],{x: world.ovni.body[0].x}),make(world.ovni.wings[1],{x: world.ovni.body[0].x})]})
+                                                                  //  wings: [make(world.ovni.wings[0],{x: world.ovni.body[0].x}),make(world.ovni.wings[1],{x: world.ovni.body[0].x})]
+                                                                  })
                                                                     ,snake:cons({x: first(world.snake).x + ax , y: first(world.snake).y + ay},pop(world.snake))})
   }
 }
@@ -193,7 +197,8 @@ function moveOvni(world,ax,ay){
   const mySnake = [{ x: 100, y: 100 }, { x: 90, y: 100 }, { x: 80, y: 100 },{ x:70, y:100}];
 
   const myOvni = {body: [{x:-100,y:250}],
-                    wings:[{x:-10,y:240},{x:-10,y:260}]}
+                   // wings:[{x:-10,y:240},{x:-10,y:260}]
+                  }
   function sketchProc(processing) {
     /**
      * Esto se llama antes de iniciar el juego
@@ -265,8 +270,9 @@ function moveOvni(world,ax,ay){
       }
       //Hace aparecer al snake por el otro lado del juego
       function reAppear(world,positionx,positiony){
-        return make(world,{snake:cons({x:first(world.snake).x+positionx,
-         y:first(world.snake).y+positiony},pop(world.snake))});
+        return make(world,{snake:cons({x:first(world.snake).x+positionx,y:first(world.snake).y+positiony},pop(world.snake)),
+        ovni:make(world.ovni,{body: cons({x:first(world.ovni.body).x+world.ovniDirection,y:first(world.ovni.body).y},pop(world.ovni.body))})
+      });
       }
       
     /**
