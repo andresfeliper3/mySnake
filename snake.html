@@ -3,7 +3,7 @@
 <script src="web-lib/functional-light.js"></script>
 <script>
   //Vamos a usar http://processingjs.org/
-//EL SUPER CAMBIO 2.0
+
 let x= 0;
   // Importamos las librerias
   let { append, cons, first, isEmpty, isList, length, rest } = functionalLight;
@@ -82,11 +82,11 @@ function master(world,ax,ay,dx,dy) {
       return shootSnake(world,ax,ay);
       //Acción de reconocer cuando el snake pasa en el rango de disparo del ovni
    }else if(world.snake[0].x + world.k == world.ovni.body[0].x){
-     console.log("shootingOvni "+world.shootingOvni);
+     
       return ia(world,ax,ay)
    }else if(world.shootingOvni){ //
-   console.log("disparo")
-    return ShootOvni(world,ax,ay);
+   
+    return shootOvni(world,ax,ay);
    }
    else if(world.score >= 100){
     return moveOvni(world,ax,ay);
@@ -128,7 +128,7 @@ function kValue(world){
 }
  
 //Controla los disparos del ovni
-function ShootOvni(world,ax,ay) {
+function shootOvni(world,ax,ay) {
   //Si las balas están en el canvas, las mueve, si no, las reposiciona en el ovni
   if((world.ammo.x <= 500 && world.ammo.x >=0) && (world.ammo.y <=500 && world.ammo.y >= 0)) {
          return make(world,{ammo:make(world.ammo,{
@@ -212,7 +212,7 @@ function moveOvni(world,ax,ay){
         food:{x:(Math.floor(processing.random(1,50))*10), y: (Math.floor(processing.random(1,50))*10), width:10, height:10, r: 210, g:210, b:100, existance:false},
         watermelon:{x:(Math.floor(processing.random(1,50))*10), y: (Math.floor(processing.random(1,50))*10),width:10,height:10,existance:false},
         shooting:false,
-        shotiingDirection:"", //guarda la dirección que tenía el snake al momento de disparar
+        shootingDirection:"", //guarda la dirección que tenía el snake al momento de disparar
         ammo:{amount:99999, x:0, y:0, size:10, speed:20},
         bullets:{amount:0, x:0, y:0, size:10, speed:20},
         score:0,
@@ -223,16 +223,16 @@ function moveOvni(world,ax,ay){
         shootingOvni:false
         };
 
-        boss = processing.loadImage("C:/Users/pc1/Desktop/Univalle/Fundamentos de Programación/VisualCodeStudio/html/framework-canvas-master/Github/mySnake-1/OVNI_BOSS.png");
-        apple = processing.loadImage("C:/Users/pc1/Desktop/Univalle/Fundamentos de Programación/VisualCodeStudio/html/framework-canvas-master/Github/mySnake-1/apple.png");
-        wMelon = processing.loadImage("C:/Users/pc1/Desktop/Univalle/Fundamentos de Programación/VisualCodeStudio/html/framework-canvas-master/Github/mySnake-1/watermelon.png");
-        heart = processing.loadImage("C:/Users/pc1/Desktop/Univalle/Fundamentos de Programación/VisualCodeStudio/html/framework-canvas-master/Github/mySnake-1/heart.png");
-        noHeart = processing.loadImage("C:/Users/pc1/Desktop/Univalle/Fundamentos de Programación/VisualCodeStudio/html/framework-canvas-master/Github/mySnake-1/noHeart.png");
-        skin = processing.loadImage("C:/Users/pc1/Desktop/Univalle/Fundamentos de Programación/VisualCodeStudio/html/framework-canvas-master/Github/mySnake-1/skin.png");
-        back = processing.loadImage("C:/Users/pc1/Desktop/Univalle/Fundamentos de Programación/VisualCodeStudio/html/framework-canvas-master/Github/mySnake-1/back.gif");
-        balaOvni = processing.loadImage("C:/Users/pc1/Desktop/Univalle/Fundamentos de Programación/VisualCodeStudio/html/framework-canvas-master/Github/mySnake-1/ammo.png");
-        balaSnakeH = processing.loadImage("C:/Users/pc1/Desktop/Univalle/Fundamentos de Programación/VisualCodeStudio/html/framework-canvas-master/Github/mySnake-1/venoH.png");
-        balaSnakeV = processing.loadImage("C:/Users/pc1/Desktop/Univalle/Fundamentos de Programación/VisualCodeStudio/html/framework-canvas-master/Github/mySnake-1/venoV.png");
+        boss = processing.loadImage("OVNI_BOSS.png");
+        apple = processing.loadImage("apple.png");
+        wMelon = processing.loadImage("watermelon.png");
+        heart = processing.loadImage("heart.png");
+        noHeart = processing.loadImage("noHeart.png");
+        skin = processing.loadImage("skin.png");
+        back = processing.loadImage("back.gif");
+        balaOvni = processing.loadImage("ammo.png");
+        balaSnakeH = processing.loadImage("venoH.png");
+        balaSnakeV = processing.loadImage("venoV.png");
 
         var canvas = document.getElementById("canvas").focus();
     }
