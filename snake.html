@@ -164,7 +164,7 @@ function ia(world,ax,ay){
           bullets:make(world.bullets,{x:first(world.snake).x + ax, y:first(world.snake).y + ay})});
   }
 }
-//Al tener un score determinado, controla la entrada del OVNI(ovni)
+// Controla el movimiento del OVNI(ovni). Al llegar a las coordenadas límite, se crea el efecto de rebote
 function moveOvni(world,ax,ay){ 
     //Revisa si el ovni ha llegado a la coordenada final
    if(world.ovni.body[0].x == 420) {
