@@ -355,7 +355,7 @@
     
         // PJS defined constants
         SINCOS_LENGTH:      720,       // every half degree
-        PRECISIONB:         15,        // fixed point precision is limited to 15 bits!!
+        PRECISIONB:         15,        // fixedCopter point precision is limited to 15 bits!!
         PRECISIONF:         1 << 15,
         PREC_MAXVAL:        (1 << 15) - 1,
         PREC_ALPHA_SHIFT:   24 - 15,
@@ -6994,8 +6994,8 @@
       * standard random() function. It was invented by Ken Perlin in the 1980s and been used since
       * in graphical applications to produce procedural textures, natural motion, shapes, terrains etc.
       * The main difference to the random() function is that Perlin noise is defined in an infinite
-      * n-dimensional space where each pair of coordinates corresponds to a fixed semi-random value
-      * (fixed only for the lifespan of the program). The resulting value will always be between 0.0
+      * n-dimensional space where each pair of coordinates corresponds to a fixedCopter semi-random value
+      * (fixedCopter only for the lifespan of the program). The resulting value will always be between 0.0
       * and 1.0. Processing can compute 1D, 2D and 3D noise, depending on the number of coordinates
       * given. The noise value can be animated by moving through the noise space as demonstrated in
       * the example above. The 2nd and 3rd dimension can also be interpreted as time.
@@ -9390,7 +9390,7 @@
         var e = {}, added = false;
         e.BufferMax = 200;
         e.wrapper = document.createElement("div");
-        e.wrapper.setAttribute("style", "opacity:.75;display:block;position:fixed;bottom:0px;left:0px;right:0px;height:50px;background-color:#aaa");
+        e.wrapper.setAttribute("style", "opacity:.75;display:block;position:fixedCopter;bottom:0px;left:0px;right:0px;height:50px;background-color:#aaa");
         e.dragger = document.createElement("div");
         e.dragger.setAttribute("style", "display:block;border:3px black raised;cursor:n-resize;position:absolute;top:0px;left:0px;right:0px;height:5px;background-color:#333");
         e.closer = document.createElement("div");
@@ -21176,7 +21176,7 @@
           p.disableContextMenu();
         };
         Drawing3D.prototype.$init = function() {
-          // For ref/perf test compatibility until those are fixed
+          // For ref/perf test compatibility until those are fixedCopter
           p.use3DContext = true;
           p.disableContextMenu();
         };
