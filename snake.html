@@ -214,7 +214,7 @@ function moveOvni(world,ax,ay){
         shooting:false,
         shootingDirection:"", //guarda la dirección que tenía el snake al momento de disparar para rotar la imagen de la bala en rotateImg
         ammo:{amount:99999, x:0, y:0, size:10, speed:20},
-        bullets:{amount:0, x:0, y:0, size:10, speed:20},
+        bullets:{amount:10, x:0, y:0, size:10, speed:20},
         score:0,
         fixed:{},
         fixedSnake: {},
@@ -232,7 +232,7 @@ function moveOvni(world,ax,ay){
         back = processing.loadImage("img/back.gif");
         balaOvni = processing.loadImage("img/ammo.png");
         balaSnakeH = processing.loadImage("img/venoH.png");
-        balaSnakeV = processing.loadImage("img/ venoV.png");
+        balaSnakeV = processing.loadImage("img/venoV.png");
 
         var canvas = document.getElementById("canvas").focus();
     }
