@@ -34,11 +34,19 @@ function shootSnake(world, ax, ay) {
          ammo:make(world.ammo,{
            x:world.ammo.x + world.fixed.x,
            y:world.ammo.y + world.fixed.y
-         })
+         }),
+        ovni:make(world.ovni,{body: cons({x:first(world.ovni.body).x+world.ovniDirection,y:first(world.ovni.body).y},pop(world.ovni.body)),
+                                                                 
+        })
          });
   } else {
     return make(world,{shooting:false,
-      bullets:make(world.bullets,{x:world.snake[0].x, y:world.snake[0].y})});
+      bullets:make(world.bullets,{x:world.snake[0].x, y:world.snake[0].y}),
+      ovni:make(world.ovni,{body: cons({x:first(world.ovni.body).x+world.ovniDirection,y:first(world.ovni.body).y},pop(world.ovni.body)),
+                                                                 
+        })
+    
+    });
   }
 }
 
@@ -46,21 +54,26 @@ function shootSnake(world, ax, ay) {
 Hace que el snake se mueva únicamente (sin crecer).
 */
 function movement(world,ax,ay) {
-  return make(world,{ammo:make(world.ammo,{x:world.ovni.body[0].x + ax, y:world.ovni.body[0].y + ay}),
+  console.log("move")
+     return make(world,{ammo:make(world.ammo,{x:world.ovni.body[0].x + ax, y:world.ovni.body[0].y + ay}),
           snake:cons({x: first(world.snake).x + ax , y: first(world.snake).y + ay},pop(world.snake)),
           k: kValue(world),
-          bullets:make(world.bullets,{x:first(world.snake).x + ax, y:first(world.snake).y + ay})});
+          bullets:make(world.bullets,{x:first(world.snake).x + ax, y:first(world.snake).y + ay}),
+         // fixed: make(world.fixed,{x:0,y:-world.ammo.speed})       
+        });
+    
+  
 }
     /*Reposiciona la comida, aumenta el score y hace que el snake crezca en 1*/
-    function eating(world,ax,ay,dx,dy) {
-  return make(world,{food:make(world.food,{x:dx, y: dy}),
+    function eating(world,ax,ay,randomx,randomy) {
+  return make(world,{food:make(world.food,{x:randomx, y: randomy}),
   snake:cons({x: first(world.snake).x + ax, y: first(world.snake).y + ay},world.snake),
   score:world.score+score1});
   
 }
 /*Reposiciona las sandías y aumenta los ammo */
-function eatingWatermelon(world, ax, ay,dx,dy){
-  return make(world,{watermelon:make(world.watermelon,{x:dx, y: dy}),
+function eatingWatermelon(world, ax, ay,randomx,randomy){
+  return make(world,{watermelon:make(world.watermelon,{x:randomx, y: randomy}),
   snake:cons({x: first(world.snake).x + ax, y: first(world.snake).y + ay}, pop(world.snake)),
   bullets:make(world.bullets,{amount:world.bullets.amount + 1}),
   ammo:make(world.ammo,{amount:world.ammo.amount + 1})
@@ -70,20 +83,22 @@ function eatingWatermelon(world, ax, ay,dx,dy){
 /*master
 Evalúa condiciones para establecer los cambios y el comportamiento en el mundo
 */
-function master(world,ax,ay,dx,dy) {
+function master(world,ax,ay,randomx,randomy) {
   //Acción de comer
   if(first(world.snake).x==world.food.x && first(world.snake).y==world.food.y) {
-    return eating(world,ax,ay,dx,dy);
+    return eating(world,ax,ay,randomx,randomy);
     //Acción de comer sandías
    } else if(first(world.snake).x==world.watermelon.x && first(world.snake).y==world.watermelon.y){
-    return eatingWatermelon(world,ax,ay,dx,dy);
-    //Acción de disparar
-   } else if(world.shooting) {
-      return shootSnake(world,ax,ay);
-      //Acción de reconocer cuando el snake pasa en el rango de disparo del ovni
-   }else if(world.snake[0].x + world.k == world.ovni.body[0].x){
-     
+    return eatingWatermelon(world,ax,ay,randomx,randomy);
+  
+   }//Acción de reconocer cuando el snake pasa en el rango de disparo del ovni
+   else if(world.snake[0].x + world.k == world.ovni.body[0].x){
+     console.log("reconocimiento")
       return ia(world,ax,ay)
+   } //Acción de disparar del snake
+   else if(world.shooting) {
+      return shootSnake(world,ax,ay);
+      
    }else if(world.shootingOvni){ // 
    //Acción de disparo del ovni
     return shootOvni(world,ax,ay);
@@ -128,8 +143,9 @@ function kValue(world){
   }
 }
  
-//Controla los disparos del ovni
+//Controla los disparos del ovni, se ejecuta cuando shootingOvni es true
 function shootOvni(world,ax,ay) {
+  console.log("shootOvni")
   //Si las balas están en el canvas, las mueve, si no, las reposiciona en el ovni
   if((world.ammo.x <= 500 && world.ammo.x >=0) && (world.ammo.y <=500 && world.ammo.y >= 0)) {
          return make(world,{ammo:make(world.ammo,{
@@ -146,10 +162,11 @@ function shootOvni(world,ax,ay) {
 }
 //Reconocimiento de la posición del snake para iniciar el disparo
 function ia(world,ax,ay){
+  console.log("ia")
   //Si el snake está sobre el eje x del ovni
   if(positionUp(world)== true){
         return make(world,{shootingOvni:true,
-          fixed: make(world.fixed,{x:0,y:-20}),//
+          fixed: make(world.fixed,{x:0,y:-world.ammo.speed}),//Guarda la dirección del disparo, es decir hacia arriba
          // ammo:make(world.ammo,{x:world.ovni.body[0].x + ax, y:world.ovni.body[0].y -20}),
           snake:cons({x: first(world.snake).x + ax , y: first(world.snake).y + ay},pop(world.snake)),
          
@@ -157,7 +174,7 @@ function ia(world,ax,ay){
     
   }else{
     return make(world,{shootingOvni:true,
-          fixed: make(world.fixed,{x:0,y:20}),
+          fixed: make(world.fixed,{x:0,y:world.ammo.speed}), //Guarda la dirección del disparo, es decir hacia abajo
        //   ammo:make(world.ammo,{x:world.ovni.body[0].x + ax, y:world.ovni.body[0].y + 20}),
           snake:cons({x: first(world.snake).x + ax , y: first(world.snake).y + ay},pop(world.snake)),
           
@@ -183,9 +200,12 @@ function moveOvni(world,ax,ay){
     }else{
       
       return make(world,{ ovni: make(world.ovni,{body: cons({x:first(world.ovni.body).x+world.ovniDirection,y:first(world.ovni.body).y},pop(world.ovni.body)),
-                                                                  //  wings: [make(world.ovni.wings[0],{x: world.ovni.body[0].x}),make(world.ovni.wings[1],{x: world.ovni.body[0].x})]
-                                                                  })
-                                                                    ,snake:cons({x: first(world.snake).x + ax , y: first(world.snake).y + ay},pop(world.snake))})
+                                                                 
+                         }),
+                          ammo:make(world.ammo,{x:world.ovni.body[0].x + ax, y:world.ovni.body[0].y + ay}),
+                          k: kValue(world),
+                          bullets:make(world.bullets,{x:first(world.snake).x + ax, y:first(world.snake).y + ay}),
+                          snake:cons({x: first(world.snake).x + ax , y: first(world.snake).y + ay},pop(world.snake))})
   }
 }
   //Dimensiones del juego
@@ -219,7 +239,7 @@ function moveOvni(world,ax,ay){
         shooting:false,
         shootingDirection:"", //guarda la dirección que tenía el snake al momento de disparar para rotar la imagen de la bala en rotateImg
         ammo:{amount:99999, x:0, y:0, size:10, speed:20},
-        bullets:{amount:10, x:0, y:0, size:10, speed:20},
+        bullets:{amount: 0, x:0, y:0, size:10, speed:20},
         score:0,
         fixed:{},
         fixedSnake: {},
@@ -260,7 +280,7 @@ function moveOvni(world,ax,ay){
         if(isEmpty(body)) {
           return false;
         } else if(head.x == first(body).x && head.y == first(body).y) {
-         //Reinicia el juego
+        
           return true;
         } 
         else {
@@ -366,25 +386,25 @@ function moveOvni(world,ax,ay){
             return make(world, {shooting:true,
             shootingDirection: "UP",
             bullets:make(world.bullets,{amount:world.bullets.amount - 1}),
-            fixedSnake:make(world.fixedSnake,{x:0,y:-20})});
+            fixedSnake:make(world.fixedSnake,{x:0,y:-world.bullets.speed})});
             break;
             case "DOWN":
             return make(world, {shooting:true,
             shootingDirection: "DOWN",
             bullets:make(world.bullets,{amount:world.bullets.amount - 1}),
-            fixedSnake:make(world.fixedSnake,{x:0,y:20})});
+            fixedSnake:make(world.fixedSnake,{x:0,y:world.bullets.speed})});
             break;
             case "RIGHT":
             return make(world, {shooting:true,
             shootingDirection: "RIGHT",
             bullets:make(world.bullets,{amount:world.bullets.amount - 1}),
-            fixedSnake:make(world.fixedSnake,{x:20,y:0})});
+            fixedSnake:make(world.fixedSnake,{x:world.bullets.speed,y:0})});
             break;
             case "LEFT":
             return make(world, {shooting:true,
             shootingDirection: "LEFT",
             bullets:make(world.bullets,{amount:world.bullets.amount - 1}),
-            fixedSnake:make(world.fixedSnake,{x:-20,y:0})});
+            fixedSnake:make(world.fixedSnake,{x:-world.bullets.speed,y:0})});
             break;
             default:
             return make(world,{});
@@ -403,17 +423,18 @@ function moveOvni(world,ax,ay){
     }
     // Dibuja algo en el canvas. Aqui se pone todo lo que quieras pintar
     processing.drawGame = function (world) {
-      processing.background(0,0,0);
+      //processing.background(0,0,0);
 
-      function backG(world) {
+      function backGround(world) {
           processing.image(back,0,0,500,500);
         }
-      backG(world);
+      backGround(world);
       //Pinta el score sencillo 
       processing.text("shooting: "+ world.shooting, 20, 20);
       //Pinta los ammo sencillo
       processing.text("BALAS: "+ world.bullets.amount, 20, 40);
-     // processing.text("FIXED : "+world.fixed.x + " " + world.fixed.y, 20, 60);
+      processing.text("shootingOvni: " +world.shootingOvni, 20, 60);
+      processing.text("FIXED : "+world.fixed.x + " " + world.fixed.y, 20, 80);
      // processing.text("AMMO: "+world.ammo.x + " " + world.ammo.y, 20, 80);
      // processing.text("K: "+world.k, 20, 100);
       //Dibuja únicamente el cuerpo del snake
