@@ -212,7 +212,7 @@ function moveOvni(world,ax,ay){
         food:{x:(Math.floor(processing.random(1,50))*10), y: (Math.floor(processing.random(1,50))*10), width:10, height:10, r: 210, g:210, b:100, existance:false},
         watermelon:{x:(Math.floor(processing.random(1,50))*10), y: (Math.floor(processing.random(1,50))*10),width:10,height:10,existance:false},
         shooting:false,
-        shootingDirection:"", //guarda la dirección que tenía el snake al momento de disparar
+        shootingDirection:"", //guarda la dirección que tenía el snake al momento de disparar para rotar la imagen de la bala en rotateImg
         ammo:{amount:99999, x:0, y:0, size:10, speed:20},
         bullets:{amount:0, x:0, y:0, size:10, speed:20},
         score:0,
@@ -308,7 +308,7 @@ function moveOvni(world,ax,ay){
           }
            
           
-        } else{
+        } else{ //Esto ocurre cuando el snake choca con su propio cuerpo
           return make(world,{
         x: 100, 
         y: 100, 
