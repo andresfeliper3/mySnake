@@ -1,5 +1,19 @@
+<head>
+  <style>
+    @font-face {
+    font-family: 'Retro Gaming';
+    src: url('RetroGaming.woff2') format('woff2'),
+        url('RetroGaming.woff') format('woff'),
+        url('RetroGaming.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+    </style>
+    
+</head>
 <canvas id="canvas" width="500" height="500"></canvas>
 <script src="web-lib/processing.js"></script>
+<script src="web-lib/buzz.min.js"></script>
 <script src="web-lib/functional-light.js"></script>
 <script>
   //Vamos a usar http://processingjs.org/
@@ -85,7 +99,7 @@ function changeSnake(world,ax,ay) // movimiento del snake
 }
 
 function changeAmmo(world,dx,dy) //reposiciona o dispara la bala
-{
+{ 
   if (world.shootingOvni)// si está disparando
   {
     return make(world.ammo,{x: world.ammo.x, y: world.ammo.y + world.fixed.y}); //disparar la bala de ovni
@@ -99,6 +113,8 @@ function changeAmmo(world,dx,dy) //reposiciona o dispara la bala
 function changebody(world)//movimiento del ovni
 {
   if(world.score >= score1){
+    world.sound.stop();
+    world.soundBattle.play();
   return cons({x:first(world.ovni.body).x+world.ovniDirection,y:first(world.ovni.body).y},pop(world.ovni.body));
   } else {
     return world.ovni.body;
@@ -221,7 +237,7 @@ function changeWatermelon(world,randomx,randomy) // reposiciona la sandía al co
 function changeAvocado(world,randomx,randomy,randomw,randomz)// reposiciona los aguacates al comer el bueno o el malo
 {
   if(first(world.snake).x==world.avocado.x && first(world.snake).y==world.avocado.y)
-  {
+  {   world.soundVida.play();
     return make(world.avocado,{x: randomx,y: randomy})
   }
   else if(first(world.snake).x==world.rottenAvocado.x && first(world.snake).y==world.rottenAvocado.y)
@@ -289,6 +305,14 @@ function changeOvniLives(world,ax,ay){
   }
 }
 
+function changeNodding(world) {
+  if(world.score >= 1000) {
+    return true;
+  } else {
+    return false;
+  }
+}
+
 function nodding(axisVal, world) {
   if(world.isNodding) {
     return 4 * Math.sin(nodFactor * Math.PI * axisVal);
@@ -297,12 +321,7 @@ function nodding(axisVal, world) {
   }
 }
 
-//FALTA PENSARLO BASTANTICO
-function asteroidsRain(world,ax,ay,randomx,randomy){
-  return make(world,{activeAsteroids: true,
-                     asteroids: cons({x: randomx, y: 0}) })
 
-}
 
 
 /*master
@@ -328,7 +347,8 @@ function master(world,ax,ay,randomx,randomy,randomw,randomz) {
   ovni: make(world.ovni,{body: changebody(world,world.changeOvniDirection,0)}),
   fixed: changeFixed(world),
   fixedSnake: changeFixedSnake(world,ax,ay),
-  ovniLives: changeOvniLives(world,ax,ay)
+  ovniLives: changeOvniLives(world,ax,ay),
+  isNodding: changeNodding(world)
   })
 }
 
@@ -361,12 +381,12 @@ function master(world,ax,ay,randomx,randomy,randomw,randomz) {
         snake: mySnake,
         lifes: myLifes,
         snakeLifes: 3,
-        ovniLives:2,
+        ovniLives:10,
         ovni: myOvni,
         inverse: false,
         ovniDirection: 10, //guarda +10 o -10 para que el ovni avance o retroceda en el eje x, inicia en 10 para que entre.
-        food:{x:(Math.floor(processing.random(1,49))*10), y: (Math.floor(processing.random(1,49))*10), width:10, height:10, r: 210, g:210, b:100, existance:false},
-        watermelon:{x:(Math.floor(processing.random(1,49))*10), y: (Math.floor(processing.random(1,49))*10),width:10,height:10,existance:false},
+        food:{x:(Math.floor(processing.random(1,48))*10), y: (Math.floor(processing.random(1,48))*10), width:10, height:10, r: 210, g:210, b:100, existance:false},
+        watermelon:{x:(Math.floor(processing.random(1,48))*10), y: (Math.floor(processing.random(1,48))*10),width:10,height:10,existance:false},
         avocado:{x:800, y: 800,width:10,height:10},
         rottenAvocado:{x:800, y: 800,width:10,height:10},
         shooting:false,
@@ -380,8 +400,11 @@ function master(world,ax,ay,randomx,randomy,randomw,randomz) {
         closeCanvas: {border: [] },
         shootingOvni:false,
         isNodding:false,
-        asteroids: myAsteroids, //darle funcionalidad
-        activeAsteroids: false, //darle funcionalidad
+        sound: new buzz.sound("web-lib/s2",{formats: ["mp3"],autoplay: true,preload: true, volume: 50}),
+        soundVida: new buzz.sound("web-lib/vida",{formats: ["mp3"],autoplay: false,preload: true, volume: 100}),
+        soundLaser: new buzz.sound("web-lib/disparo laser",{formats: ["mp3"],autoplay: false,preload: true, volume: 80}),
+        soundBattle: new buzz.sound("web-lib/batalla",{formats: ["mp3"],autoplay: false,preload: true, volume: 60}),
+
         };
 
         boss = processing.loadImage("img/OVNI_BOSS.png");
@@ -461,25 +484,25 @@ function master(world,ax,ay,randomx,randomy,randomw,randomz) {
             if(first(world.snake).y==0) {
               return reAppear(world,0,gameSize.height);
             }
-              return master(world,0,-10,(Math.floor(processing.random(1,49))*10),(Math.floor(processing.random(1,49))*10),(Math.floor(processing.random(1,49))*10),(Math.floor(processing.random(1,49))*10));
+              return master(world,0,-10,(Math.floor(processing.random(1,48))*10),(Math.floor(processing.random(1,48))*10),(Math.floor(processing.random(1,48))*10),(Math.floor(processing.random(1,48))*10));
             break;
             case "DOWN":
             if(first(world.snake).y==gameSize.height) {
               return reAppear(world,0,-gameSize.height);
             }
-            return master(world,0,10,(Math.floor(processing.random(1,49))*10),(Math.floor(processing.random(1,49))*10),(Math.floor(processing.random(1,49))*10),(Math.floor(processing.random(1,49))*10));
+            return master(world,0,10,(Math.floor(processing.random(1,48))*10),(Math.floor(processing.random(1,48))*10),(Math.floor(processing.random(1,48))*10),(Math.floor(processing.random(1,48))*10));
             break;
             case "LEFT":
             if(first(world.snake).x==0) {
               return reAppear(world,gameSize.width,0);
             }
-            return master(world,-10,0,(Math.floor(processing.random(1,49))*10),(Math.floor(processing.random(1,49))*10),(Math.floor(processing.random(1,49))*10),(Math.floor(processing.random(1,49))*10));
+            return master(world,-10,0,(Math.floor(processing.random(1,48))*10),(Math.floor(processing.random(1,48))*10),(Math.floor(processing.random(1,48))*10),(Math.floor(processing.random(1,48))*10));
             break;
             case "RIGHT":
             if(first(world.snake).x==gameSize.width) {
               return reAppear(world,-gameSize.width,0);
             }
-            return master(world,10,0,(Math.floor(processing.random(1,49))*10),(Math.floor(processing.random(1,49))*10),(Math.floor(processing.random(1,49))*10),(Math.floor(processing.random(1,49))*10));
+            return master(world,10,0,(Math.floor(processing.random(1,48))*10),(Math.floor(processing.random(1,48))*10),(Math.floor(processing.random(1,48))*10),(Math.floor(processing.random(1,48))*10));
             break;
             default:
             return make(world,{});
@@ -493,10 +516,10 @@ function master(world,ax,ay,randomx,randomy,randomw,randomz) {
         snake: mySnake,
         ovni: myOvni,
         snakeLifes: world.snakeLifes -1,
-        food:{x:(Math.floor(processing.random(1,49))*10), y: (Math.floor(processing.random(1,49))*10), width:10, height:10,existance:false},
-        watermelon:{x:(Math.floor(processing.random(1,49))*10), y: (Math.floor(processing.random(1,49))*10),width:10,height:10,existance:false},
-        avocado:{x:(Math.floor(processing.random(1,49))*10), y: (Math.floor(processing.random(1,49))*10),width:10,height:10},
-        rottenAvocado:{x:(Math.floor(processing.random(1,49))*10), y: (Math.floor(processing.random(1,49))*10),width:10,height:10},
+        food:{x:(Math.floor(processing.random(1,48))*10), y: (Math.floor(processing.random(1,48))*10), width:10, height:10,existance:false},
+        watermelon:{x:(Math.floor(processing.random(1,48))*10), y: (Math.floor(processing.random(1,48))*10),width:10,height:10,existance:false},
+        avocado:{x:(Math.floor(processing.random(1,48))*10), y: (Math.floor(processing.random(1,48))*10),width:10,height:10},
+        rottenAvocado:{x:(Math.floor(processing.random(1,48))*10), y: (Math.floor(processing.random(1,48))*10),width:10,height:10},
         score:0,
         shooting: false,
         shootingOvni: false,
@@ -560,9 +583,11 @@ function master(world,ax,ay,randomx,randomy,randomw,randomz) {
         //Barra espaciadora para disparar  
         case 32: //PENDIENTE POR OPTIMIZAR
         if(world.bullets.amount > 0 && !world.shooting){
+          world.soundLaser.play();
           /*Si hay al menos una bala, cambia su estado a true, disminuye en 1 
         la cantidad de balas y guarda en fixed la dirección que debe conservar la bala.*/
           switch(world.direction) {
+            
             case "UP":
             return make(world, {shooting:true,
             shootingDirection: "UP",
@@ -604,17 +629,37 @@ function master(world,ax,ay,randomx,randomy,randomw,randomz) {
     }
     // Dibuja algo en el canvas. Aqui se pone todo lo que quieras pintar
     processing.drawGame = function (world) {
-      //processing.background(0,0,0);
+      processing.textFont(processing.createFont("Retro Gaming"))
+      world.sound.play();
+
+    function drawWin(world){
+      if(world.ovniLives == 0){
+        processing.background(0,0,0);
+        processing.textSize(50,50)
+        processing.textAlign(processing.CENTER,processing.TOP);
+        processing.text("YOU WIN!",250,250)
+      }else if(world.snakeLifes == 0){
+        processing.background(0,0,0);
+        processing.textSize(50,50)
+        processing.textAlign(processing.CENTER,processing.TOP);
+        processing.text("YOU LOSE!",250,250)
+      }else {
+
+
 
       function backGround(world) {
           processing.image(back,0,0,500,500);
         }
       backGround(world);
-      //Pinta el score sencillo 
+      //Pinta el score sencillo
+      processing.text("SNAKE LIVES: " +world.snakeLifes, 20, 40);
+      processing.text("SNAKE BULLETS: " +world.bullets.amount, 20, 20);
+      processing.text("SCORE: " +world.score, 400, 480);
 
       //Pinta los ammo sencillo
       if(world.score >= score1){
-      processing.text("vidas de la kk: " +world.ovniLives, 20, 60);
+      processing.text("BOSS LIVES: " +world.ovniLives, 380, 20);
+
       }
      // processing.text("AMMO: "+world.ammo.x + " " + world.ammo.y, 20, 80);
      // processing.text("K: "+world.k, 20, 100);
@@ -627,8 +672,8 @@ function master(world,ax,ay,randomx,randomy,randomw,randomz) {
       drawSnake(rest(world.snake));
       //Dibuja únicamente la cabeza del snake
       function drawSnakeHead(head) {
-        processing.fill(250,250,250);
-        processing.rect(head.x + nodding(head.y, world), head.y + nodding(head.x, world), size, size);
+
+        processing.image(skin,head.x + nodding(head.y, world), head.y + nodding(head.x, world), size, size);
       }
       drawSnakeHead(world.snake[0]);
 
@@ -692,12 +737,6 @@ function master(world,ax,ay,randomx,randomy,randomw,randomz) {
         })
       }
       drawOvni(world.ovni)
-
-      function drawProof(ovni) {
-        processing.fill(240,240,240)
-        processing.rect(ovni.body[0].x, ovni.body[0].y,10,10)
-      }
-      drawProof(world.ovni);
 
       function drawLifes(lifes) {
           if(world.snakeLifes >= 3){
@@ -768,7 +807,9 @@ function master(world,ax,ay,randomx,randomy,randomw,randomz) {
     } 
       
       drawBorders(world);
-
+      }
+    }
+    drawWin(world);
       
     };
 
