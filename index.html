@@ -36,11 +36,17 @@
       
       MyFont = processing.createFont("Retro Gaming");
       processing.state = {title: {rgb: [0,255,0],font: processing.createFont("Retro Gaming")},frame: 0, play: true,
+      ovni: processing.loadImage("img/OVNI_BOSS.png"),
+      apple: processing.loadImage("img/apple.png"),
+      watermelon: processing.loadImage("img/watermelon.png"),
+      wall: processing.loadImage("img/asteroid.png"),
+      avocato: processing.loadImage("img/aguacate.png"),
+      life: processing.loadImage("img/heart.png"),
       sound: new buzz.sound("web-lib/s1",{formats: ["mp3"],autoplay: true,preload: true,volume: 50}),
       select: new buzz.sound("web-lib/menu_select",{formats: ["mp3"]}),
       move: new buzz.sound("web-lib/menu_move",{formats: ["mp3"],volume: 100}),
 
-       state: "opening", selection: 1, limit: 1};
+       state: "opening", selection: 1, limit: 3};
     }
     /**
     * Actualiza el mundo en cada tic del reloj. Retorna el nuevo stado del mundo
@@ -93,21 +99,54 @@
         {
           case "opening":
 
-           return make(world,{state: "main menu",limit: 2});
+           switch (world.selection)
+           {
+            case 1:
+            return make(world,{state: "main menu",limit: 3, selection: 1});
+              break;
+            case 2:
+            return make(world,{state: "instructions menu",limit: 3, selection: 1});
+              break;
+            case 3:
+            return make(world,{state: "credits",limit: 1, selection: 1});
+              break;
+           }
            break;
           case "main menu":
             switch (world.selection)
             {
               case 1:
-                window.open("snake.html","_self");
-		break;
+                window.open("SnakeVsAlien.html","_self")
+                break;
               case 2:
-                window.open("movement.html","_self");
-		break;
+                window.open("GalaxySnake.html","_self");
+                break;
+              case 3:
+                return make(world,{state: "opening", limit: 3, selection: 1})
+                break;
             }
             break;
+          case "instructions menu":
+          switch (world.selection)
+            {
+              case 1:
+                return make(world,{state: "alien vs snake instructions", limit: 6, selection: 1})
+                break;
+              case 2:
+                return make(world,{state: "galaxy snake instructions", limit: 4, selection: 1})
+                break;
+              case 3:
+                return make(world,{state: "opening", limit: 3, selection: 1})
+                break;
+            }
+            break;
+          case "alien vs snake instructions":
+          case "galaxy snake instructions":
+            return make(world,{state: "instructions menu", limit: 3, selection: 1})
+          case "credits":
+            return make(world,{state: "opening", limit: 3, selection: 1})
+            break;
         }
-        
         break;
         case processing.LEFT:
         world.move.play();
@@ -126,6 +165,50 @@
           }
           return make(world,{selection: world.selection+1})
         break;
+        case processing.UP:
+        switch (world.state)
+        {
+          case "opening":
+          world.move.play();
+          if(world.selection<=1)
+          {
+            return make(world,{selection: world.limit})
+          }
+          return make(world,{selection: world.selection-1});
+            break;
+          case "main menu":
+          case "instructions menu":
+          world.move.play();
+          return make(world,{selection: 1});
+          break;
+          default:
+          return make(world,{});
+
+        }
+        break;
+        case processing.DOWN:
+        switch (world.state)
+        {
+          case "opening":
+          world.move.play();
+          if(world.selection>=world.limit)
+          {
+            return make(world,{selection: 1})
+          }
+          return make(world,{selection: world.selection+1});
+            break;
+          case "main menu":
+          case "instructions menu":
+          world.move.play();
+          return make(world,{selection: world.limit});
+          break;
+          default:
+          return make(world,{});
+
+        }
+        break;
+
+        
       }
       return make(world,{});
     }
@@ -142,7 +225,10 @@
       switch (world.state)
       {
         case "opening":
-          if(world.frame<13.5)
+          switch (world.selection)
+          {
+            case 1:
+            if(world.frame<13.5)
           {
             processing.fill(255,255,255)
           }
@@ -150,7 +236,41 @@
             processing.fill(255,255,0)
           }
           processing.textSize(window.innerHeight/120*window.innerWidth/120)
-          processing.text("PLAY",window.innerWidth/2,window.innerHeight*2/3)
+          processing.text("PLAY",window.innerWidth/2,window.innerHeight*4/7)
+          processing.fill(255,255,255)
+          processing.text("HOW TO PLAY",window.innerWidth/2,window.innerHeight*5/7)
+          processing.text("CREDITS",window.innerWidth/2,window.innerHeight*6/7);
+              break;
+            case 2:
+          processing.fill(255,255,255)
+          processing.textSize(window.innerHeight/120*window.innerWidth/120)
+          processing.text("PLAY",window.innerWidth/2,window.innerHeight*4/7)
+          if(world.frame<13.5)
+          {
+            processing.fill(255,255,255)
+          }
+          else{
+            processing.fill(255,255,0)
+          }
+          processing.text("HOW TO PLAY",window.innerWidth/2,window.innerHeight*5/7)
+          processing.fill(255,255,255)
+          processing.text("CREDITS",window.innerWidth/2,window.innerHeight*6/7);
+              break;
+            case 3:
+            processing.fill(255,255,255)  
+          processing.textSize(window.innerHeight/120*window.innerWidth/120)
+          processing.text("PLAY",window.innerWidth/2,window.innerHeight*4/7)
+          processing.text("HOW TO PLAY",window.innerWidth/2,window.innerHeight*5/7)
+          if(world.frame<13.5)
+          {
+            processing.fill(255,255,255)
+          }
+          else{
+            processing.fill(255,255,0)
+          }
+          processing.text("CREDITS",window.innerWidth/2,window.innerHeight*6/7);
+              break;
+          }
           break;
         case "main menu":
           switch (world.selection)
@@ -168,6 +288,9 @@
           processing.fill(255,255,255)
           processing.textSize(window.innerHeight/120*window.innerWidth/120)
           processing.text("GALAXY\n\SNAKE",window.innerWidth*2/3,window.innerHeight*2/3)
+          processing.textAlign(processing.LEFT,processing.BOTTOM)
+          processing.textSize(window.innerHeight/140*window.innerWidth/140)
+          processing.text("BACK",20,window.innerHeight-20)
           break;
           case 2:
           processing.fill(255,255,255)
@@ -183,10 +306,210 @@
           }
           processing.textSize(window.innerHeight/120*window.innerWidth/120)
           processing.text("GALAXY\n\SNAKE",window.innerWidth*2/3,window.innerHeight*2/3)
+          processing.fill(255,255,255)
+          processing.textAlign(processing.LEFT,processing.BOTTOM)
+          processing.textSize(window.innerHeight/140*window.innerWidth/140)
+          processing.text("BACK",20,window.innerHeight-20)
           break;
+          case 3:
+          processing.fill(255,255,255)
+          processing.textSize(window.innerHeight/120*window.innerWidth/120)
+          processing.text("ALIEN\nVS\nSNAKE",window.innerWidth/3,window.innerHeight*2/3)
+          processing.textSize(window.innerHeight/120*window.innerWidth/120)
+          processing.text("GALAXY\n\SNAKE",window.innerWidth*2/3,window.innerHeight*2/3)
+          if(world.frame<13.5)
+          {
+            processing.fill(255,255,255)
+          }
+          else{
+            processing.fill(255,255,0)
+          }
+          processing.textAlign(processing.LEFT,processing.BOTTOM)
+          processing.textSize(window.innerHeight/140*window.innerWidth/140)
+          processing.text("BACK",20,window.innerHeight-20)
           }
           
           break;
+        case "instructions menu":
+        switch (world.selection)
+          {
+            case 1:
+            if(world.frame<13.5)
+          {
+            processing.fill(255,255,255)
+          }
+          else{
+            processing.fill(255,255,0)
+          }
+          processing.textSize(window.innerHeight/120*window.innerWidth/120)
+          processing.text("ALIEN\nVS\nSNAKE",window.innerWidth/3,window.innerHeight*2/3)
+          processing.fill(255,255,255)
+          processing.textSize(window.innerHeight/120*window.innerWidth/120)
+          processing.text("GALAXY\n\SNAKE",window.innerWidth*2/3,window.innerHeight*2/3)
+          processing.textAlign(processing.LEFT,processing.BOTTOM)
+          processing.textSize(window.innerHeight/140*window.innerWidth/140)
+          processing.text("BACK",20,window.innerHeight-20)
+          break;
+          case 2:
+          processing.fill(255,255,255)
+          processing.textSize(window.innerHeight/120*window.innerWidth/120)
+          processing.text("ALIEN\nVS\nSNAKE",window.innerWidth/3,window.innerHeight*2/3)
+          
+          if(world.frame<13.5)
+          {
+            processing.fill(255,255,255)
+          }
+          else{
+            processing.fill(255,255,0)
+          }
+          processing.textSize(window.innerHeight/120*window.innerWidth/120)
+          processing.text("GALAXY\n\SNAKE",window.innerWidth*2/3,window.innerHeight*2/3)
+          processing.fill(255,255,255)
+          processing.textAlign(processing.LEFT,processing.BOTTOM)
+          processing.textSize(window.innerHeight/140*window.innerWidth/140)
+          processing.text("BACK",20,window.innerHeight-20)
+          break;
+          case 3:
+          processing.fill(255,255,255)
+          processing.textSize(window.innerHeight/120*window.innerWidth/120)
+          processing.text("ALIEN\nVS\nSNAKE",window.innerWidth/3,window.innerHeight*2/3)
+          processing.textSize(window.innerHeight/120*window.innerWidth/120)
+          processing.text("GALAXY\n\SNAKE",window.innerWidth*2/3,window.innerHeight*2/3)
+          if(world.frame<13.5)
+          {
+            processing.fill(255,255,255)
+          }
+          else{
+            processing.fill(255,255,0)
+          }
+          processing.textAlign(processing.LEFT,processing.BOTTOM)
+          processing.textSize(window.innerHeight/140*window.innerWidth/140)
+          processing.text("BACK",20,window.innerHeight-20)
+          }
+          
+          break;
+          case "credits":
+          if(world.frame<13.5)
+          {
+            processing.fill(255,255,255)
+          }
+          else{
+            processing.fill(255,255,0)
+          }
+          processing.textAlign(processing.LEFT,processing.BOTTOM)
+          processing.textSize(window.innerHeight/140*window.innerWidth/140)
+          processing.text("BACK",20,window.innerHeight-20)
+          processing.fill(255,255,255)
+          processing.textAlign(processing.RIGHT,processing.CENTER)
+          processing.textSize(window.innerHeight/160*window.innerWidth/160)
+          processing.text("PRODUCED BY:\nART DESIGN\nPROGRAMMERS:\n\n\n\n\nMUSIC:\n", window.innerWidth*2/5,window.innerHeight*2/3)
+          processing.textAlign(processing.LEFT,processing.CENTER)
+          processing.text("NOOB GAMES\nJOSÉ DAVID BARONA HERNÁNDEZ\nANDRÉS FELIPE RINCÓN\n"+
+          "DIEGO FABIÁN LEDESMA\nJOSÉ DAVID BARONA HERNÁNDEZ\nEDWIN LEONARDO CUARAN\n"+
+          "SAMUEL RIASCOS PRIETO\nINFECTED MUSHROOM\n7 MINUTES DEAD",window.innerWidth*3/7,window.innerHeight*2/3)
+          break;
+          case "alien vs snake instructions":
+          if(world.frame<13.5)
+          {
+            processing.fill(255,255,255)
+          }
+          else{
+            processing.fill(255,255,0)
+          }
+          processing.textAlign(processing.LEFT,processing.BOTTOM)
+          processing.textSize(window.innerHeight/140*window.innerWidth/140)
+          processing.text("BACK",20,window.innerHeight-20)
+            switch (world.selection)
+            {
+              case 1:
+              processing.image(world.ovni,window.innerWidth/2-(window.innerWidth/100*window.innerHeight/100),window.innerHeight*3/6-(window.innerWidth/100*window.innerHeight/100)/2,window.innerWidth/70*window.innerHeight/70,window.innerWidth/70*window.innerHeight/70)
+              processing.fill(255,255,255)
+              processing.textAlign(processing.CENTER,processing.CENTER)
+              processing.textSize(window.innerHeight/160*window.innerWidth/160)
+              processing.text("YOUR MISSION IS TO DEFEAT\nTHE ALIEN THAT IS FLYING IN THE OVNI",window.innerWidth/2,window.innerHeight*5/6)
+              break;
+              case 2:
+              processing.image(world.watermelon,window.innerWidth/2-(window.innerWidth/100*window.innerHeight/100),window.innerHeight*3/6-(window.innerWidth/100*window.innerHeight/100)/2,window.innerWidth/70*window.innerHeight/70,window.innerWidth/70*window.innerHeight/70)
+              processing.fill(255,255,255)
+              processing.textAlign(processing.CENTER,processing.CENTER)
+              processing.textSize(window.innerHeight/160*window.innerWidth/160)
+              processing.text("TO DO SO, YOU MUST EAT WATERMELONS\nWHICH GIVE YOU AMMO TO TAKE THE OVNI DOWN.\nUSE SPACEBAR TO SHOOT",window.innerWidth/2,window.innerHeight*5/6)
+              break;
+              case 3:
+              processing.image(world.wall,window.innerWidth/2-(window.innerWidth/100*window.innerHeight/100),window.innerHeight*3/6-(window.innerWidth/100*window.innerHeight/100)/2,window.innerWidth/70*window.innerHeight/70,window.innerWidth/70*window.innerHeight/70)
+              processing.fill(255,255,255)
+              processing.textAlign(processing.CENTER,processing.CENTER)
+              processing.textSize(window.innerHeight/160*window.innerWidth/160)
+              processing.text("BE CAREFUL! THE ALIEN SHALL \nSHOOT BACK, OR YOU MAY CRASH WITH A WALL",window.innerWidth/2,window.innerHeight*5/6)
+              break;
+              case 4:
+              processing.image(world.life,window.innerWidth/2-(window.innerWidth/100*window.innerHeight/100),window.innerHeight*3/6-(window.innerWidth/100*window.innerHeight/100)/2,window.innerWidth/70*window.innerHeight/70,window.innerWidth/70*window.innerHeight/70)
+              processing.fill(255,255,255)
+              processing.textAlign(processing.CENTER,processing.CENTER)
+              processing.textSize(window.innerHeight/160*window.innerWidth/160)
+              processing.text("BOTH ACTIONS TAKE LIFES AWAY FROM YOU.\nONCE YOU LOSE YOUR 3 LIFES, IT'S GAME OVER",window.innerWidth/2,window.innerHeight*5/6)
+              break;
+              case 5:
+              processing.image(world.avocato,window.innerWidth/2-(window.innerWidth/100*window.innerHeight/100),window.innerHeight*3/6-(window.innerWidth/100*window.innerHeight/100)/2,window.innerWidth/70*window.innerHeight/70,window.innerWidth/70*window.innerHeight/70)
+              processing.fill(255,255,255)
+              processing.textAlign(processing.CENTER,processing.CENTER)
+              processing.textSize(window.innerHeight/160*window.innerWidth/160)
+              processing.text("YOU CAN WIN LIFES BACK BY EATING AVOCATOS.\nBUT BEWARE, BECAUSE A NASTY SURPRISE AWAITS\nIN THE SECOND AVOCATO",window.innerWidth/2,window.innerHeight*5/6)
+              break;
+              case 6:
+              processing.image(world.apple,window.innerWidth/2-(window.innerWidth/100*window.innerHeight/100),window.innerHeight*3/6-(window.innerWidth/100*window.innerHeight/100)/2,window.innerWidth/70*window.innerHeight/70,window.innerWidth/70*window.innerHeight/70)
+              processing.fill(255,255,255)
+              processing.textAlign(processing.CENTER,processing.CENTER)
+              processing.textSize(window.innerHeight/160*window.innerWidth/160)
+              processing.text("LAST BUT NOT LEAST, YOU EARN POINTS BY EATING APPLES\nCAN YOU GET A SCORE HIGH ENOUGH\nAND STILL BEAT THE ALIEN?",window.innerWidth/2,window.innerHeight*5/6)
+              break;
+
+              
+            }
+            break;
+            case "galaxy snake instructions":
+            
+          if(world.frame<13.5)
+          {
+            processing.fill(255,255,255)
+          }
+          else{
+            processing.fill(255,255,0)
+          }
+          processing.textAlign(processing.LEFT,processing.BOTTOM)
+          processing.textSize(window.innerHeight/140*window.innerWidth/140)
+          processing.text("BACK",20,window.innerHeight-20)
+            switch (world.selection)
+            {
+              case 1:
+              processing.fill(255,255,255)
+              processing.textAlign(processing.CENTER,processing.CENTER)
+              processing.textSize(window.innerHeight/140*window.innerWidth/140)
+              processing.text("BLUE PLAYER MOVES WITH A AND W,\nRED PLAYER WITH LEFT AND RIGHT ARROWS",window.innerWidth/2,window.innerHeight*4/6)
+              break;
+              case 2:
+              processing.fill(255,255,255)
+              processing.textAlign(processing.CENTER,processing.CENTER)
+              processing.textSize(window.innerHeight/140*window.innerWidth/140)
+              processing.text("BOTH EARN POINTS\nBY EATING THE GREEN SPHERE",window.innerWidth/2,window.innerHeight*4/6)
+              break;
+              case 3:
+              processing.fill(255,255,255)
+              processing.textAlign(processing.CENTER,processing.CENTER)
+              processing.textSize(window.innerHeight/140*window.innerWidth/140)
+              processing.text("CRASHING WITH ONE'S BODY\nOR THE OTHER PLAYER'S BODY\nMEANS INSTANT DEATH",window.innerWidth/2,window.innerHeight*4/6)
+              break;
+              case 4:
+              processing.fill(255,255,255)
+              processing.textAlign(processing.CENTER,processing.CENTER)
+              processing.textSize(window.innerHeight/140*window.innerWidth/140)
+              processing.text("LAST SNAKE ALIVE WINS.\nPRETTY SIMPLE RIGHT?",window.innerWidth/2,window.innerHeight*4/6)
+              break;
+
+            }
+
+
+
       }
       processing.fill(255,255,255)
       processing.textSize(window.innerHeight/32)

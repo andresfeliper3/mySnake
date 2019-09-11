@@ -6995,7 +6995,7 @@
       * in graphical applications to produce procedural textures, natural motion, shapes, terrains etc.
       * The main difference to the random() function is that Perlin noise is defined in an infinite
       * n-dimensional space where each pair of coordinates corresponds to a fixed semi-random value
-      * (fixed only for the Livespan of the program). The resulting value will always be between 0.0
+      * (fixed only for the lifespan of the program). The resulting value will always be between 0.0
       * and 1.0. Processing can compute 1D, 2D and 3D noise, depending on the number of coordinates
       * given. The noise value can be animated by moving through the noise space as demonstrated in
       * the example above. The 2nd and 3rd dimension can also be interpreted as time.

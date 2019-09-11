@@ -10,8 +10,16 @@
 }
     </style>
     
-</head>
-<canvas id="canvas" width="500" height="500"></canvas>
+</head>}
+<body style="background-image: url(img/backcanvas.jpg)">
+  
+</body>
+<canvas id="canvas" style="padding: 0;
+padding: 0;
+margin:auto;
+margin:auto;
+display: block;
+position: absolute; top: 0; bottom: 0; left: 0; right: 0;" width="500" height="500"></canvas>
 <script src="web-lib/processing.js"></script>
 <script src="web-lib/buzz.min.js"></script>
 <script src="web-lib/functional-light.js"></script>
@@ -37,11 +45,20 @@ function pop(list) {
         return cons(first(list),pop(rest(list)));
     }
 }
-function distance(x1,y1,x2,y2) // función que determina la distancia que hay entre dos coordenadas
-{
+
+ /*Contrato: Distance: number, number, number, number --> number
+  Propósito: Determinar la distancia euclidiana entre dos puntos en un plano cartesiano
+  Ejemplo:    Distance(-3,7,5,10) =>  8.54
+  */
+function distance(x1,y1,x2,y2) {
   return Math.sqrt(Math.pow(x2-x1,2)+Math.pow(y2-y1,2));
 }
-//hace que la bala del snake  cambie en el eje x
+
+ /*Contrato: changeBulletsX: object, number --> number
+  Propósito: determina los cambios que debe tener la bala del snake en el eje x si world.shooting es true(es decir, si está en capacidad de disparar), de lo contrario reposiciona
+  la bala del snake en la cabeza del snake
+  */
+
 function changeBulletsX(world,ax)
 {
   if (world.shooting)//si shooting es true 
@@ -53,7 +70,11 @@ function changeBulletsX(world,ax)
   }
 }
 
-// //hace que la bala del snake  cambie en el eje y
+ /*Contrato: changeBulletsX: object, number --> number
+  Propósito: determina los cambios que debe tener la bala del snake en el eje y si world.shooting es true(es decir, si está en capacidad de disparar), de lo contrario reposiciona
+  la bala del snake en la cabeza del snake
+  */
+
 function changeBulletsY(world,ay)
 {
   if (world.shooting)//si shooting es true 
@@ -65,7 +86,13 @@ function changeBulletsY(world,ay)
   }
 }
 
-// cambia la dirección de la bala del ovni
+ /*Contrato: changeFixed: object --> object
+  Propósito: crea un nuevo mundo con la dirección que debería salir disparada la bala del ovni dependiendo de la posición del snake, es decir:
+  si el snake está arriba dispara la bala hacia arriba de lo contrario dispara la bala hacía abajo.
+  Por otro lado analiza las situaciones en las que la bala dispara hacía la última dirección registrada y
+  de lo contrario a lo anterior, reposiciona la bala del ovni en eje x y y de la cabeza del ovni.
+  */
+
 function changeFixed(world)
 {
   if(world.shootingOvni)// si shooting es true
@@ -85,23 +112,30 @@ function changeFixed(world)
   }
   else
   {
-    return make(world.fixed,{x: world.ovni.body[0].x,y: 0})// si no está disparando reposiciona la bala del ovni en la cabeza
+    return make(world.fixed,{x: world.ovni.body[0].x,y: 0})// si no está disparando mantiene la bala del ovni en la cabeza
   }
 }
 
-
-function changeSnake(world,ax,ay) // movimiento del snake
+ /*Contrato: changeSnake: object, number,number --> array or object
+  Propósito: determina los cambios que debe tener la bala del snake en el eje x si world.shooting es true(es decir, si está en capacidad de disparar), de lo contrario reposiciona
+  la bala del snake en la cabeza del snake
+  */
+function changeSnake(world,ax,ay) 
 { 
   if(world.snake[0].x == world.food.x && world.snake[0].y == world.food.y) {
     return cons({x: world.snake[0].x + ax , y: world.snake[0].y + ay},world.snake); //se mueve y crece
   }
-  return cons({x: world.snake[0].x + ax , y: world.snake[0].y + ay},pop(world.snake));// mueve el snake y quita la cola
+  return cons({x: world.snake[0].x + ax , y: world.snake[0].y + ay},pop(world.snake));// mueve el snake y quita la cola para que no se pinte y cree la ilusión de movimiento
 }
 
-function changeAmmo(world,dx,dy) //reposiciona o dispara la bala
+/*Contrato: changeAmmo: object, number,number --> object
+  Propósito: retorna el disparo del ovni y el reposicionamiento de la misma en la cabeza del ovni, por otro lado ejecuta el sonido del disparo
+  */
+
+function changeAmmo(world,dx,dy)
 { 
-  if (world.shootingOvni)// si está disparando
-  {
+  if (world.shootingOvni)// si puede disparar
+  { world.soundFireOvni.play();
     return make(world.ammo,{x: world.ammo.x, y: world.ammo.y + world.fixed.y}); //disparar la bala de ovni
   }
   else
@@ -110,25 +144,32 @@ function changeAmmo(world,dx,dy) //reposiciona o dispara la bala
   }
 }
 
-function changebody(world)//movimiento del ovni
+/*Contrato: changebody: object,  --> array
+  Propósito: determina el momento en el que el ovni entra al mapa y se mueve constantemente en la mitad del canvas, por otro lado reproduce el sonido de entrada del Ovni y pone en stop 
+  la canción de fondo anterior.
+  */
+function changebody(world)
 {
   if(world.score >= score1){
     world.sound.stop();
-    world.soundBattle.play();
+    world.soundBoss.play();
+
   return cons({x:first(world.ovni.body).x+world.ovniDirection,y:first(world.ovni.body).y},pop(world.ovni.body));
   } else {
     return world.ovni.body;
   }
 }
 
-
-function changeOvniDirection(world)//cambia la dirección del ovni al alcanzar los límites del canvas
+/*Contrato: changeOvniDirection: object --> number
+  Propósito: determina en qué momento el ovni alcanza los límites del canvas y debe cambiar de dirección, aumentando o disminuyendo en el eje x.
+  */
+function changeOvniDirection(world)
 {
-  if (world.ovni.body[0].x >= 420)
+  if (world.ovni.body[0].x >= 420) // se mueve hacía la derecha hasta que alcance el límite del canvas
   {
     return -10
   }
-  else if(world.ovni.body[0].x <= 0)
+  else if(world.ovni.body[0].x <= 0) // se mueve hacía la izquiera hasta que alcance el límite del canvas
   {
     return 10
   }
@@ -137,11 +178,14 @@ function changeOvniDirection(world)//cambia la dirección del ovni al alcanzar l
   }
 }
 
-
-function changeShooting(world)//
-{  // si las balas del snake están dentro del canvas
-  if(world.bullets.x > world.ovni.body[0].x && world.bullets.x < world.ovni.body[0].x +70 &&
-     world.bullets.y > world.ovni.body[0].y && world.bullets.y < world.ovni.body[0].y+60){
+/*Contrato: changeShooting: object --> boolean
+  Propósito: si las balas del snake están dentro del canvas retorna un boleano que no da permiso de disparo al snake hasta que la bala anterior esté fuera del canvas,
+   de lo contrario reposiciona la bala en la cabeza del snake
+  */
+function changeShooting(world)
+{  
+  if(world.bullets.x > world.ovni.body[0].x && world.bullets.x < world.ovni.body[0].x + 70 && // +70 por el ancho del ovni
+     world.bullets.y > world.ovni.body[0].y && world.bullets.y < world.ovni.body[0].y + 60){ //+ 60 por el alto del ovni
     return false;
 
   }
@@ -154,9 +198,12 @@ function changeShooting(world)//
   }
 }
 
-
+/*Contrato: changeShootingOvni: object --> boolean
+  Propósito: si las balas del Ovni están dentro del canvas retorna un boleano que no da permiso de disparo al Ovni hasta que la bala anterior esté fuera del canvas,
+   de lo contrario retorna falso, es decir que la bala ya salió del canvas para luego ser reposicionada por otra función.
+  */
 function changeShootingOvni(world){
-  //si las balas del ovni están dentro del canvas
+  //si las balas del ovni están dentro del canvas 
   if((world.ammo.x <= 500 && world.ammo.x >=0) && (world.ammo.y <=500 && world.ammo.y >= 0))
   {
     return true;
@@ -167,7 +214,10 @@ function changeShootingOvni(world){
   }
 }
 
-function changeScore(world) // si el snake se com una manzana incremente el score
+/*Contrato: changeScore: object --> number
+  Propósito: incrementar el score en 100 en caso de que la posición de la cabeza del snake sea igual a la posición de la manzana (food)
+  */
+function changeScore(world) // si el snake se come una manzana incremente el score
 {
   if (first(world.snake).x==world.food.x && first(world.snake).y==world.food.y)
   {
@@ -179,17 +229,20 @@ function changeScore(world) // si el snake se com una manzana incremente el scor
   }
 }
 
+/*Contrato: changeInverse: object --> boolean
+  Propósito: función que permite cambiar de movimiento normal a teclas invertidas y viceversa a través de un boolean.
+  */
 function changeInverse(world){ // cambiar la inversión de las teclas
 
-  if(first(world.snake).x==world.food.x && first(world.snake).y==world.food.y)// restaurar teclas
+  if(first(world.snake).x==world.food.x && first(world.snake).y==world.food.y)// restaurar teclas si se come una manzana 
   {
     return false;
   }
-  else if(first(world.snake).x==world.avocado.x && first(world.snake).y==world.avocado.y) //restaurar teclas
+  else if(first(world.snake).x==world.avocado.x && first(world.snake).y==world.avocado.y) //restaurar teclas si se come un aguacate
   {
     return false;
   }
-  else if(first(world.snake).x==world.rottenAvocado.x && first(world.snake).y==world.rottenAvocado.y)// invertir teclas
+  else if(first(world.snake).x==world.rottenAvocado.x && first(world.snake).y==world.rottenAvocado.y)// invertir teclas si se come un aguacate podrido
   {
     return true;
   }
@@ -199,9 +252,12 @@ function changeInverse(world){ // cambiar la inversión de las teclas
   }
 }
 
+/*Contrato: changeBulletsAmount: object --> number
+  Propósito: incrementa las balas del snake en caso de que se logre comer una sandía.
+  */
 function changeBulletsAmount (world) // incrementa las balas del snake si se come una sandía
 {
-  if(first(world.snake).x==world.watermelon.x && first(world.snake).y==world.watermelon.y)
+  if(first(world.snake).x==world.watermelon.x && first(world.snake).y==world.watermelon.y) //posición de la cabeza del snake igual a la posición de la sandía
   {
     return world.bullets.amount + 1
   }
@@ -210,10 +266,13 @@ function changeBulletsAmount (world) // incrementa las balas del snake si se com
   }
 }
 
-function changeFood (world,randomx,randomy) //reposiciona la manzana al comerla
+/*Contrato: changeFood: object, number, number--> object
+  Propósito: reposiciona la manzana inmediatamente después de que el snake se la coma, por otro lado ejecuta un sonido característico al comer manzanas
+  */
+function changeFood (world,randomx,randomy) 
 {
   if(first(world.snake).x==world.food.x && first(world.snake).y==world.food.y)
-  {
+  { world.soundEatApple.play();
     return make(world.food,{x: randomx,y: randomy});
   }
   else
@@ -222,10 +281,13 @@ function changeFood (world,randomx,randomy) //reposiciona la manzana al comerla
   }
 }
 
+/*Contrato: changeWatermelon: object, number, number--> object
+  Propósito: reposiciona la sandía inmediatamente después de que el snake se la coma, por otro lado ejecuta un sonido característico al comer sandías
+  */
 function changeWatermelon(world,randomx,randomy) // reposiciona la sandía al comerla
 {
   if(first(world.snake).x==world.watermelon.x && first(world.snake).y==world.watermelon.y)
-  {
+  {world.soundSandia.play();
     return make(world.watermelon,{x: randomx,y: randomy});
   }
   else
@@ -234,6 +296,10 @@ function changeWatermelon(world,randomx,randomy) // reposiciona la sandía al co
   }
 }
 
+/*Contrato: changeAvocado: object, number, number, number, number--> object
+  Propósito: reposiciona el aguacate bueno y aguacate podrido inmediatamente después de que el snake se coma el aguacate bueno, 
+  por otro lado ejecuta un sonido característico al comer aguacate bueno y aguacate podrido.
+  */
 function changeAvocado(world,randomx,randomy,randomw,randomz)// reposiciona los aguacates al comer el bueno o el malo
 {
   if(first(world.snake).x==world.avocado.x && first(world.snake).y==world.avocado.y)
@@ -241,7 +307,7 @@ function changeAvocado(world,randomx,randomy,randomw,randomz)// reposiciona los 
     return make(world.avocado,{x: randomx,y: randomy})
   }
   else if(first(world.snake).x==world.rottenAvocado.x && first(world.snake).y==world.rottenAvocado.y)
-  {
+  {world.soundBrah.play();
     return make(world.avocado,{x: randomx,y: randomy})
   }
   else
@@ -249,14 +315,20 @@ function changeAvocado(world,randomx,randomy,randomw,randomz)// reposiciona los 
     return world.avocado;
   }
 }
+
+/*Contrato: changeRottenAvocado: object, number, number, number, number--> object
+  Propósito: reposiciona el aguacate bueno y aguacate podrido inmediatamente después de que el snake se coma el aguacate podrido, 
+  por otro lado ejecuta un sonido característico al comer aguacate bueno y aguacate podrido.
+  */
+
 function changeRottenAvocado(world,randomx,randomy,randomw,randomz)// reposiciona los aguacates al comer el bueno o el malo
 {
   if(first(world.snake).x==world.avocado.x && first(world.snake).y==world.avocado.y)
-  {
+  {world.soundVida.play();
     return make(world.rottenAvocado,{x: randomw,y: randomz})
   }
   else if(first(world.snake).x==world.rottenAvocado.x && first(world.snake).y==world.rottenAvocado.y)
-  {
+  {world.soundBrah.play();
     return make(world.rottenAvocado,{x: randomw,y: randomz})
   }
   else
@@ -265,6 +337,9 @@ function changeRottenAvocado(world,randomx,randomy,randomw,randomz)// reposicion
   }
 }
 
+/*Contrato: changeSnakeLifes: object --> number
+  Propósito: incrementa en 1 la vida del snake si logra comerse un aguacate bueno
+  */
 function changeSnakeLifes(world) // aumenta una vida al snake al comerse un aguacate bueno
 {
   if(first(world.snake).x==world.avocado.x && first(world.snake).y==world.avocado.y)
@@ -277,7 +352,10 @@ function changeSnakeLifes(world) // aumenta una vida al snake al comerse un agua
   }
 }
 
-function changeFixedSnake(world,ax,ay) // animación de disparo del snake -- dx/dt o dy/dt --velocidad
+/*Contrato: changeFixedSnake: object, number,number--> object
+  Propósito: determina en que eje debe aumentar o disminuir la bala del snake para hacer el efecto de animación del disparo.
+  */
+function changeFixedSnake(world,ax,ay) 
 {
   if(world.bullets.x == world.snake[0].x + ax && world.bullets.y == world.snake[0].y + ay)//si la bala está en la cabeza del snake
   {
@@ -296,15 +374,24 @@ function changeFixedSnake(world,ax,ay) // animación de disparo del snake -- dx/
   }
 }
 
+/*Contrato: changeOvniLives: object, number,number--> number
+  Propósito: disminuye la vida del Ovni en 1 en caso de que la bala del snake esté dentro del rango de la posición en el eje x y el eje y del ovni.
+  Disminuye en -0.5 debido a que alcanza a quitarle vida en dos instancias.
+  */
 function changeOvniLives(world,ax,ay){
   if(world.bullets.x > world.ovni.body[0].x && world.bullets.x < world.ovni.body[0].x +70 &&
   world.bullets.y > world.ovni.body[0].y && world.bullets.y < world.ovni.body[0].y+60){ // si la bala está en el rango del ovni
+    world.soundImpact.play();
       return world.ovniLives -0.5;
   }else{
       return world.ovniLives
   }
 }
 
+/*Contrato: changeNodding: object --> Boolean
+  Propósito: En caso de que el score sea mayor a 1000 (haberse comido 10 manzanas), desbloquea automáticamente el movimiento especial del snake serpenteando.
+  retorna un boleano que modifica la manera en que la función DrawGame dibuja el snake en el canvas.
+  */
 function changeNodding(world) {
   if(world.score >= 1000) {
     return true;
@@ -313,9 +400,13 @@ function changeNodding(world) {
   }
 }
 
+/*Contrato: nodding: number,object --> number
+  Propósito: Propósito: Devolver un valor que dependa de la posición en un eje y oscile de forma sinusoidal,
+  de forma que se pueda usar ese valor para crear un movimiento de serpenteo.
+  */
 function nodding(axisVal, world) {
   if(world.isNodding) {
-    return 4 * Math.sin(nodFactor * Math.PI * axisVal);
+    return amplitude * Math.sin(nodFactor * Math.PI * axisVal);
   } else{
     return 0;
   }
@@ -325,7 +416,7 @@ function nodding(axisVal, world) {
 
 
 /*master
-Evalúa condiciones para establecer los cambios y el comportamiento en el mundo
+Evalúa condiciones para establecer los cambios y el comportamiento en el mundo en cada frame del onTic
 */
 function master(world,ax,ay,randomx,randomy,randomw,randomz) {
   return make(world,{
@@ -356,16 +447,19 @@ function master(world,ax,ay,randomx,randomy,randomw,randomz) {
   const gameSize = {height:500,width:500};
   //Tamaño de cada segmento del snake
   const size = 10;
-  //Aumento del score al comer
+  //Score para que aparezca el OVNI
   const score1 = 500; 
   //Frecuencia de la oscilación
   const nodFactor = 1/60;
+  //amplitud
+  const amplitude = 4;
+  //Posiciones del Snake inicial
   const mySnake = [{ x: 100, y: 100 }, { x: 90, y: 100 }, { x: 80, y: 100 },{ x:70, y:100}];
+  //Posiciones de los corazones representantes de las vidas totales del Snake
   const myLifes = [{ x: 10, y: 460 }, { x: 40, y: 460 }, { x: 70, y: 460 }];
-  const myAsteroids = [{x:10,y:-10}];
-  const myOvni = {body: [{x:-100,y:250}],
-                   // wings:[{x:-10,y:240},{x:-10,y:260}]
-                  }
+  //Posición inicial del Ovni
+  const myOvni = {body: [{x:-100,y:250}]}
+
   function sketchProc(processing) {
     /**
      * Esto se llama antes de iniciar el juego
@@ -375,8 +469,6 @@ function master(world,ax,ay,randomx,randomy,randomw,randomz) {
       processing.size(gameSize.width, gameSize.height);
       processing.background(0, 0, 0);
       processing.state = {
-        x: 100, 
-        y: 100, 
         direction:"", 
         snake: mySnake,
         lifes: myLifes,
@@ -400,31 +492,45 @@ function master(world,ax,ay,randomx,randomy,randomw,randomz) {
         closeCanvas: {border: [] },
         shootingOvni:false,
         isNodding:false,
-        sound: new buzz.sound("web-lib/s2",{formats: ["mp3"],autoplay: true,preload: true, volume: 50}),
-        soundVida: new buzz.sound("web-lib/vida",{formats: ["mp3"],autoplay: false,preload: true, volume: 100}),
-        soundLaser: new buzz.sound("web-lib/disparo laser",{formats: ["mp3"],autoplay: false,preload: true, volume: 80}),
-        soundBattle: new buzz.sound("web-lib/batalla",{formats: ["mp3"],autoplay: false,preload: true, volume: 60}),
+        sound: new buzz.sound("web-lib/s2",{formats: ["mp3"],autoplay: true,preload: true, volume: 50}),                          // sonido de fondo
+        soundVida: new buzz.sound("web-lib/vida",{formats: ["mp3"],autoplay: false,preload: true, volume: 100}),                  // sonido al comer aguacate bueno
+        soundLaser: new buzz.sound("web-lib/disparo laser",{formats: ["mp3"],autoplay: false,preload: true, volume: 80}),         // sonido del disparo del snake
+        soundBoss: new buzz.sound("web-lib/Boss",{formats: ["mp3"],autoplay: false,preload: true, volume: 60}),                   // sonido de fondo al entrar el Ovni
+        soundImpact: new buzz.sound("web-lib/impacto",{formats: ["mp3"],autoplay: false,preload: true, volume: 100}),             // sonido de los impactos
+        soundEatApple: new buzz.sound("web-lib/sfx_coin_double3",{formats: ["wav"],autoplay: false,preload: true, volume: 100}),  // sonido al comer manzana
+        soundGameOver: new buzz.sound("web-lib/Game over",{formats: ["mp3"],autoplay: false,preload: true, volume: 100}),         // sonido al perder el juego
+        soundYouWin: new buzz.sound("web-lib/you win",{formats: ["mp3"],autoplay: false,preload: true, volume: 100}),             // sonido al ganar el juego
+        soundSandia: new buzz.sound("web-lib/sandia",{formats: ["mp3"],autoplay: false,preload: true, volume: 100}),              // sonido al comer sandía
+        soundBrah: new buzz.sound("web-lib/Bruh",{formats: ["mp3"],autoplay: false,preload: true, volume: 100}),                 // sonido al comer aguacate podrido
+        soundFireOvni: new buzz.sound("web-lib/sfx_wpn_cannon1",{formats: ["wav"],autoplay: false,preload: true, volume: 60}), 
+        
 
         };
 
-        boss = processing.loadImage("img/OVNI_BOSS.png");
-        apple = processing.loadImage("img/apple.png");
-        wMelon = processing.loadImage("img/watermelon.png");
-        aguacate = processing.loadImage("img/aguacate.png");
-        heart = processing.loadImage("img/heart.png");
-        skin = processing.loadImage("img/skin.PNG");
-        back = processing.loadImage("img/back.gif");
-        balaOvni = processing.loadImage("img/ammo.png");
-        balaSnakeH = processing.loadImage("img/venoH.png");
-        balaSnakeV = processing.loadImage("img/venoV.png");
-        asteroid = processing.loadImage("img/asteroid.png"); //falta pintarlo
-        barrier = processing.loadImage("img/obstaculos.png"); // falta pintarlo
+        boss = processing.loadImage("img/OVNI_BOSS.png");     // diseño del ovni
+        apple = processing.loadImage("img/apple.png");        // diseño de la manzana
+        wMelon = processing.loadImage("img/watermelon.png");  // diseño de la sandía
+        aguacate = processing.loadImage("img/aguacate.png");  // diseño del aguacate
+        heart = processing.loadImage("img/heart.png");        // diseño del corazón
+        skin = processing.loadImage("img/skin.PNG");          // diseño de la piel del snake
+        back = processing.loadImage("img/back.gif");          // diseño del fondo del mapa
+        balaOvni = processing.loadImage("img/ammo.png");      // diseño de la bala del Ovni
+        balaSnakeH = processing.loadImage("img/venoH.png");   // diseño de la bala del snake en posición horizontal
+        balaSnakeV = processing.loadImage("img/venoV.png");   // diseño de la bala del snake en posición vertical
+        asteroid = processing.loadImage("img/asteroid.png");  // diseño de los asteroides que cierran el canvas al entrar el ovni
+
 
         var canvas = document.getElementById("canvas").focus();
     }
-    // funcion que retorna la posición de la imágen de la bala del snake dependiendo de su posición
-    //devuelve true si se debe utilizar la vertical
-    //debuelte false si se debe utilizar la horizontal
+
+
+    /*Contrato: rotateImage: object --> bolean
+  Propósito: determinar la posición del snake al disparar para así identificar si colocar el diseño de la bala horizontal o vertical
+  a través de un boleano
+  devuelve true si se debe utilizar la vertical
+  debuelte false si se debe utilizar la horizontal
+
+  */
     function rotateImg(world){
         if(world.shootingDirection == "UP" || world.shootingDirection == "DOWN"){
           return true;
@@ -433,9 +539,11 @@ function master(world,ax,ay,randomx,randomy,randomw,randomz) {
         }
        }
 
-    /*Detiene el juego si la cabeza se estrella con el cuerpo del snake.
-      Detiene el juego si la cabeza del snake se estrella con el ovni
-    Retorna false si no se está chocando y true en caso contrario.
+    /*contrato: crashBody: objeto, objeto, objeto --> bolean
+    propósito:reposiciona el juego si la cabeza se estrella con el cuerpo del snake.
+              reposiciona el juego si la cabeza del snake se estrella con el ovni
+              Retorna false si no se está chocando y true en caso contrario.
+    Por otro lado, reproduce sonidos en cada caso.
     */
     
     function crashBody(body,head,world){
@@ -445,16 +553,25 @@ function master(world,ax,ay,randomx,randomy,randomw,randomz) {
         else if(head.x == first(body).x && head.y == first(body).y || 
         head.x >= world.ovni.body[0].x && head.x <= world.ovni.body[0].x + 70 &&
         head.y >= world.ovni.body[0].y && head.y <= world.ovni.body[0].y + 60) {
+
+          world.soundImpact.play();
+
           return true;
+            //condición si el snake se choca contra los límites del canvas cuando se comience a cerrar en el momento en que aparece el ovni
         }if(world.score >= score1 && (head.x >= 490 || head.x <= 10 || head.y >= 490 || head.y <= 0)){
+          world.soundImpact.play();
             return true;
+            //condición de impacto de la bala del ovni con el snake
           }else if(distance(world.ammo.x,world.ammo.y,world.snake[0].x,world.snake[0].y) < 20 ||
-          distance(world.ammo.x,world.ammo.y,world.snake[0].x,world.snake[1].y) < 20 ||
-          distance(world.ammo.x,world.ammo.y,world.snake[0].x,world.snake[2].y) < 20 || 
-          distance(world.ammo.x,world.ammo.y,world.snake[0].x,world.snake[3].y) < 20){
+          distance(world.ammo.x,world.ammo.y,world.snake[1].x,world.snake[1].y) < 20 ||
+          distance(world.ammo.x,world.ammo.y,world.snake[2].x,world.snake[2].y) < 20 || 
+          distance(world.ammo.x,world.ammo.y,world.snake[3].x,world.snake[3].y) < 20){
+
+            world.soundImpact.play();
             return true;
           }
         else {
+
           return crashBody(rest(body),head,world);
         }
             
@@ -462,23 +579,23 @@ function master(world,ax,ay,randomx,randomy,randomw,randomz) {
 
 
 
-      
-      //Hace aparecer al snake por el otro lado del juego
+          /*contrato: crashBody: objeto, number, number --> object
+            propósito: reposición el snake al otro extremo del canvas en caso de que se salga de los límites.
+    */
       function reAppear(world,positionx,positiony){
         return make(world,{snake:cons({x:first(world.snake).x+positionx,y:first(world.snake).y+positiony},pop(world.snake)),
-       // ovni:make(world.ovni,{body: cons({x:first(world.ovni.body).x+world.ovniDirection,y:first(world.ovni.body).y},pop(world.ovni.body))})
       });
       }
-      
+
     /**
     * Actualiza el mundo en cada tic del reloj. Retorna el nuevo estado del mundo
     */
-    
     processing.onTic = function (world) {
       
-        //Crashbody revisa que no se esté chocando                  
+        //Crashbody revisa que no se esté chocando nada                
         if(crashBody(rest(world.snake),first(world.snake),world)==false){
-          
+            /*analiza cada una de las direcciones posibles del snake y ejecuta una función master encargada de 
+             crear nuevos mundos con los cambios necesarios a partir de diversas condiciones*/
             switch (world.direction) {
             case "UP":
             if(first(world.snake).y==0) {
@@ -509,38 +626,40 @@ function master(world,ax,ay,randomx,randomy,randomw,randomz) {
           }
            
           
-        } else{ //Esto ocurre cuando el snake choca con su propio cuerpo o con el ovni
+        } else{ //Esto ocurre cuando se cumple algunas de las condiciones del crashBody, reposiciona diversos elementos del mundo.
+          world.soundBoss.stop();
+          
           return make(world,{
+          
         x: 100, 
         y: 100, 
         snake: mySnake,
-        ovni: myOvni,
         snakeLifes: world.snakeLifes -1,
         food:{x:(Math.floor(processing.random(1,48))*10), y: (Math.floor(processing.random(1,48))*10), width:10, height:10,existance:false},
         watermelon:{x:(Math.floor(processing.random(1,48))*10), y: (Math.floor(processing.random(1,48))*10),width:10,height:10,existance:false},
         avocado:{x:(Math.floor(processing.random(1,48))*10), y: (Math.floor(processing.random(1,48))*10),width:10,height:10},
         rottenAvocado:{x:(Math.floor(processing.random(1,48))*10), y: (Math.floor(processing.random(1,48))*10),width:10,height:10},
-        score:0,
         shooting: false,
         shootingOvni: false,
         closeCanvas: {border: [] },
-        direction: "", 
+        direction: "",
+        ammo:{amount:99999, x:0, y:0, size:10, speed:25},
         });
         }
     }
  
     /**
-    * Actualiza el mundo cada vez que se oprime una tecla. Retorna el nuevo stado del mundo
+    * Actualiza el mundo cada vez que se oprime una tecla. Retorna el nuevo estado del mundo
     */
     processing.onKeyEvent = function (world, keyCode) {
       switch (keyCode) {
         case processing.UP:
-        if(world.inverse == true){
+        if(world.inverse == true){ // si inverse es true, invierte las teclas
            if(world.direction == "RIGHT" || world.direction == "LEFT"){
              return make(world,{direction: "DOWN"})
            }
         }
-        if(world.direction=="DOWN") {
+        if(world.direction=="DOWN") { //movimiento normal por eventos del teclado
           return make(world, {direction:"DOWN"})
         }
           return make(world,{direction: "UP"})
@@ -580,10 +699,17 @@ function master(world,ax,ay,randomx,randomy,randomw,randomz) {
         }
           return make(world, { direction: "RIGHT" });
           break;
+        case processing.ENTER: // en caso de presionar ENTER, redirecciona a la interfaz principal del videojuego
+        {
+          return window.open("index.html","_self");
+          break;
+        }
+      
         //Barra espaciadora para disparar  
-        case 32: //PENDIENTE POR OPTIMIZAR
+        case 32:
         if(world.bullets.amount > 0 && !world.shooting){
-          world.soundLaser.play();
+          world.soundLaser.play(); //reproduce el sonido del disparo del snake
+
           /*Si hay al menos una bala, cambia su estado a true, disminuye en 1 
         la cantidad de balas y guarda en fixed la dirección que debe conservar la bala.*/
           switch(world.direction) {
@@ -616,7 +742,6 @@ function master(world,ax,ay,randomx,randomy,randomw,randomz) {
             return make(world,{});
           }
           
-          //console.log(world.bullets.amount)
         } else{
           return make(world,{});
         }    
@@ -632,37 +757,49 @@ function master(world,ax,ay,randomx,randomy,randomw,randomz) {
       processing.textFont(processing.createFont("Retro Gaming"))
       world.sound.play();
 
+    //dibuja en el canvas que ganaste en caso de haber derrotado al ovni junto con el score final obtenido.
     function drawWin(world){
-      if(world.ovniLives == 0){
+      if(world.ovniLives <= 0){
+
+        world.sound.stop();
+        world.soundYouWin.play();
+        processing.background(0,0,0);
+        processing.textSize(40,40)
+        processing.textAlign(processing.CENTER,processing.TOP);
+        processing.text("Y O U  W I N !",250,200)
+        processing.text("YOUR SCORE IS: ",250,250)
+        processing.text(world.score,250,300)
+        //dibuja en el canvas que perdiste en caso de haber perdido las tres vidas e imprime el score obtenido
+      }else if(world.snakeLifes <= 0){
+        world.sound.stop();
+        world.soundBoss.stop();
+        world.soundGameOver.play();
         processing.background(0,0,0);
         processing.textSize(50,50)
         processing.textAlign(processing.CENTER,processing.TOP);
-        processing.text("YOU WIN!",250,250)
-      }else if(world.snakeLifes == 0){
-        processing.background(0,0,0);
-        processing.textSize(50,50)
-        processing.textAlign(processing.CENTER,processing.TOP);
-        processing.text("YOU LOSE!",250,250)
+        processing.text("G A M E O V E R !",250,100)
+        processing.text("YOUR SCORE IS: ",250,270)
+        processing.text(world.score,250,320)
       }else {
 
 
-
+   
+        // pinta el fondo del mapa
       function backGround(world) {
           processing.image(back,0,0,500,500);
         }
       backGround(world);
-      //Pinta el score sencillo
+      //Pinta el score, las balas del snake y las vidas
       processing.text("SNAKE LIVES: " +world.snakeLifes, 20, 40);
       processing.text("SNAKE BULLETS: " +world.bullets.amount, 20, 20);
       processing.text("SCORE: " +world.score, 400, 480);
 
-      //Pinta los ammo sencillo
+      //Pinta las vidas del Ovni cuando aparece
       if(world.score >= score1){
-      processing.text("BOSS LIVES: " +world.ovniLives, 380, 20);
+      processing.text("BOSS LIVES: " + world.ovniLives, 380, 20);
 
       }
-     // processing.text("AMMO: "+world.ammo.x + " " + world.ammo.y, 20, 80);
-     // processing.text("K: "+world.k, 20, 100);
+
       //Dibuja únicamente el cuerpo del snake
       function drawSnake(snake) {
         snake.forEach(part => {
@@ -670,6 +807,7 @@ function master(world,ax,ay,randomx,randomy,randomw,randomz) {
         })
       }
       drawSnake(rest(world.snake));
+
       //Dibuja únicamente la cabeza del snake
       function drawSnakeHead(head) {
 
@@ -677,8 +815,7 @@ function master(world,ax,ay,randomx,randomy,randomw,randomz) {
       }
       drawSnakeHead(world.snake[0]);
 
-      //Dibuja las balas del snake
-
+      //Dibuja las balas del snake utilizando la función rotateImg para determinar que sentido de la imágen utilizar
       function drawBullets(world,bullets) {
         if(world.shooting == true && rotateImg(world)==true){
 
@@ -697,8 +834,8 @@ function master(world,ax,ay,randomx,randomy,randomw,randomz) {
         }
       }
       drawAmmoC(world, world.ammo);
-      //Dibuja la comida
 
+      //Dibuja la Manzana
       function drawFood(food) {
         if(food.existance==false) {
           processing.image(apple,food.x, food.y, food.width+10, food.height+10);
@@ -706,7 +843,8 @@ function master(world,ax,ay,randomx,randomy,randomw,randomz) {
         }
       }
       drawFood(world.food);
-      //Dibujaría las sandías
+
+      //Dibuja la sandía
       function drawWatermelons(watermelon) {
         if(watermelon.existance==false){
           processing.image(wMelon,watermelon.x, watermelon.y, watermelon.width+10, watermelon.height+10);
@@ -722,7 +860,7 @@ function master(world,ax,ay,randomx,randomy,randomw,randomz) {
       }
       drawAvocado(world.avocado);
 
-      //Dibuja los aguacates malos
+      //Dibuja los aguacates podridos
         function drawRottenAvocado(rottenAvocado) {
         if(world.snakeLifes<3){
           processing.image(aguacate,world.rottenAvocado.x, world.rottenAvocado.y, rottenAvocado.width+ 10, rottenAvocado.height+ 10);
@@ -730,7 +868,7 @@ function master(world,ax,ay,randomx,randomy,randomw,randomz) {
       }
       drawRottenAvocado(world.rottenAvocado);
 
-
+      //dibuja el Ovni
       function drawOvni(ovni) {
         ovni.body.forEach(part => { //En caso de quitar la lista hay que cambiar esto
           processing.image(boss,part.x, part.y, size*8,size*8);
@@ -738,6 +876,7 @@ function master(world,ax,ay,randomx,randomy,randomw,randomz) {
       }
       drawOvni(world.ovni)
 
+      //Dibuja las vidas del snake en la parte inferior izquierda del canvas, dependiendo de las vidas que tenga
       function drawLifes(lifes) {
           if(world.snakeLifes >= 3){
               lifes.forEach(part => { 
@@ -753,23 +892,26 @@ function master(world,ax,ay,randomx,randomy,randomw,randomz) {
           }
       drawLifes(world.lifes);
 
+      //dibuja el cierre del canvas al entrar el ovni cuando obtienes un score de 500, en este momento el snake ya hace colisión en los límites del canvas
       function drawBorders(world)
       { if(world.score >= score1){
         world.closeCanvas.border.forEach(part => {
           
-          processing.image(barrier,part.x,part.y,10,10)  
+          processing.image(asteroid,part.x,part.y,10,10)  
         })
       }
     }
 
+      //se determina los bordes del canvas
       function setBorders(closeCanvas)
       {
         closeCanvas.border=[{x: 490,y: 240,size:1},{x: 490,y: 230,size:2}];
       }
 
+      //empieza a dibujar cada uno de los asteroides en los límites del canvas cambiando las posiciones del dibujo al llegar a las esquinas del canvas
       function buildBorders(closeCanvas)
       {
-        if (closeCanvas.border[0].x!=pop(closeCanvas.border).x && closeCanvas.border[0].y!=pop(closeCanvas.border).y)
+        if (closeCanvas.border[0].x !=pop(closeCanvas.border).x && closeCanvas.border[0].y !=pop(closeCanvas.border).y)
         {
           
           if(closeCanvas.border[0].x==490 && closeCanvas.border[0].y > 0 && closeCanvas.border[0].y<250)

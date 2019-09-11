@@ -23,23 +23,10 @@
   function make(data, attribute) {
     return Object.assign({}, data, attribute);
   }
-  //Determina el Mejor Puntaje de la dificultad seleccionada
-  function puntdif()
-  {
-    switch (chosendif)
-    {
-      case difficulty.millipede:
-        return "PuntajeM";
-        break;
-      case difficulty.snake:
-        return "PuntajeS";
-        break;
-      case difficulty.centipede:
-        return "PuntajeC";
-        break;
-    }
-  }
-  //Invierte una lista
+  /*
+  Contrato: invertir: lista => lista
+  Propósito: Invertir una lista
+  */
   function invertir(list)
   {
     if(isEmpty(list))
@@ -48,7 +35,11 @@
     }
     return cons(last(list),invertir(restLast(list)));
   }
-  //Determina si un elemento está contenido en una lista
+
+  /*
+  Contrato: contain: valor, lista => lista
+  Propósito: Determinar si una lista contiene cierto valor
+  */
   function contain(x,list)
   {
     if(isEmpty(list))
@@ -61,7 +52,13 @@
     }
     return contain(x,(rest(list)));
   }
-  //Elimina el último elemento de una lista
+
+  /*
+  Contrato: fade: Pista de sonido => Nada
+  Propósito: Disminuir progresivamente el volumen de una pista
+  musical hasta que sea 0, instante en el que se procederá a
+  detener dicha pista.
+  */
   function fade(music)
   {
     if (music.getVolume()<=0)
@@ -70,6 +67,10 @@
     }
     music.decreaseVolume(1);
   }
+  /*
+  Contrato: restLast: lista => lista
+  Propósito: Eliminar el último valor de una lista
+  */
   function restLast(list)
   {
     if(length(list)==1)
@@ -78,30 +79,30 @@
     }
     return cons(first(list),restLast(rest(list)));
   }
+
   /* Contrato: Pit: number --> number
   Propósito: Calcular el valor restante necesario para que x^2+y^2=h^2, siendo val x o y y siendo h speed
   Ejemplos: Pit(10) => 0
             Pit(5)  => 8.66
             Pit(7)  => 7.14
   */
-  function Pit(val)
-  {
+  function Pit(val){
     return Math.sqrt(Math.pow(speed,2)-Math.pow(val,2));
   }
+
   /* Contrato: Redondear: number --> number
   Propósito: Aproximar un valor al entero más cercano
   Ejemplos: Redondear(3.2)  =>  3
             Redondear(7.57) =>  8
             Redondear(2)    =>  2
   */
-  function Redondear(val)
-  {
-    if(Math.ceil(val)-val<val-Math.floor(val))
-    {
+  function Redondear(val){
+    if(Math.ceil(val)-val<val-Math.floor(val)){
       return Math.ceil(val);
     }
     return Math.floor(val);
   }
+
   /*Contrato: midval: number --> number
   Propósito: Calcula el valor para el cual se cumple que x^2+y^2=h^2, donde x y y son iguales y son el valor calculado, 
   y h el valor ingresado
@@ -109,41 +110,36 @@
             midval(10)  => 7
             midval(15)  => 11
   */
-  function midval(val)
-  {
+  function midval(val){
     return Redondear(Math.sqrt(Math.pow(val,2)/2));
   }
+
   /*Contrato: reSnake: list, object --> list
   Propósito: Actualiza las posiciones x y y de los segmentos del Snake, así como sus direcciones. La nueva dirección
   de cada segmento es la antigua dirección del segmento anterior
   */
-  function reSnake(snake,dir,x,y)
-  {
+  function reSnake(snake,dir,x,y){
     /*Los if's evalúan si el snake está tocando algún límite del mapa. En caso de ser cierto
     se teletransporta al límite opuesto
     */
-    if(isEmpty(snake))
-    {
+    if(isEmpty(snake)){
       return [];
     }
-    if(first(snake).x>=window.innerWidth)
-    {
+    if(first(snake).x>=window.innerWidth){
       return cons({x: 0 + first(snake).dirección.x,
       y: first(snake).y + first(snake).dirección.y, 
       dirección: dir,
       distance: Distance(x,y,first(snake).x,first(snake).y)}, 
-      reSnake(rest(snake),first(snake).dirección,x,y));
+      reSnake(rest(snake), first(snake).dirección,x,y));
     }
-    if(first(snake).x<=0)
-    {
+    if(first(snake).x<=0){
       return cons({x: window.innerWidth + first(snake).dirección.x,
       y: first(snake).y + first(snake).dirección.y,
       dirección: dir,
       distance: Distance(x,y,first(snake).x,first(snake).y)},
       reSnake(rest(snake),first(snake).dirección,x,y));
     }
-    if(first(snake).y>=window.innerHeight)
-    {
+    if(first(snake).y>=window.innerHeight){
       return cons({x: first(snake).x + first(snake).dirección.x,
       y: 0 + first(snake).dirección.y,
       dirección: dir,
@@ -172,17 +168,7 @@
     }
     return last(rest(list));
   }
-  /*Contrato: opposite: number --> number
-  Propósito: Determinar el opuesto de un valor
-  Ejemplos:     opposite(-5)  =>  5
-                opposite(3)   =>  -3
-                opposite(0)   =>  0
-  */
-  //Esta función resulta inecesaria, mas tengo pereza de corregirla en este momento :b
-  function opposite(val)
-  {
-    return -val;
-  }
+
    /*Contrato: Distance: number, number, number, number --> number
   Propósito: Determinar la distancia euclidiana entre dos puntos en un plano cartesiano
   Ejemplo:    Distance(-3,7,5,10) =>  8.54
@@ -191,13 +177,12 @@
   {
     return Redondear(Math.sqrt(Math.pow(x2-x1,2)+Math.pow(y2-y1,2)));
   }
+
   /*Contrato: Movement: object, char, number, number --> object
   Propósito: Mover al snake, cambiando sus direcciones dependiendo de los valores ingresados
   */
-  function Movement(global,world,a,val1,val2)
-  {
-    if(a==="y")
-    {
+  function Movement(global, world, a, val1, val2){
+    if(a==="y"){
       return make(world,
       {dirección: 
       {y: world.dirección.y + world.twist*val1,
@@ -205,6 +190,7 @@
       snake: reSnake(world.snake,world.dirección,world.snake[0].x,world.snake[0].y),
       distance: Distance(world.snake[0].x,world.snake[0].y,global.food.x,global.food.y)});
     }
+
     else if(a==="x"){
       return make(world,
       {dirección:
@@ -213,15 +199,26 @@
       snake: reSnake(world.snake,world.dirección,world.snake[0].x,world.snake[0].y),
       distance: Distance(world.snake[0].x,world.snake[0].y,global.food.x,global.food.y)});
     }
+
     else if(a==="nothing"){
       return make(world,
       {snake: reSnake(world.snake,world.dirección,world.snake[0].x,world.snake[0].y),
       distance: Distance(world.snake[0].x,world.snake[0].y,global.food.x,global.food.y)});
     }
   }
+
   // Evalúa si la serpiente se está chocacdo consigo misma
-  function selfColission(snake,head)
-  {
+  function selfColission(snake,head){
+    if (isEmpty(snake)){
+      return false;
+    }
+    if (Distance(head.x,head.y,first(snake).x, first(snake).y)<normdistance){
+      return true;
+    }
+    return selfColission(rest(snake),head);
+  }
+
+  function externalColission(snake,head){
     if (isEmpty(snake))
     {
       return false;
@@ -232,18 +229,7 @@
     }
     return selfColission(rest(snake),head);
   }
-  function externalColission(snake,head)
-  {
-    if (isEmpty(snake))
-    {
-      return false;
-    }
-    if (Distance(head.x,head.y,first(snake).x,first(snake).y)<normdistance)
-    {
-      return true;
-    }
-    return selfColission(rest(snake),head);
-  }
+
   // Aquí se definen el tamaño de los segmentos, las posibles dificultades y sus velocidades y twists correspondientes
   /* Twist: Cantidad en que aumenta o disminuye X o Y a la hora de girar.
   Esto define qué tan rápido puede dar una vuelta completa:
@@ -251,12 +237,7 @@
   y se tarda más tiempo en girar; entre más grande, más aumentan y se tarda menos.
   */
   const size=10;
-  const difficulty={millipede: {speed: size*0.5, twist: 1},
-                    snake: {speed: size*0.75, twist: 1.5},
-                    centipede: {speed: size, twist: 2}};
-  //La dificultad seleccionada. La velocidad y el twist del snake dependen de este valor.
-  const chosendif=difficulty.snake;
-  const speed=chosendif.speed
+  const speed=size*0.75
   //La snake inicial, que consta de 4 segmentos en una línea horizontal uno detrás del otro.
   const snake2=[{x: 100, y:100, dirección: {x: speed,y: 0}, distance: 20},
               {x: 100-speed, y:100, dirección: {x: speed,y: 0}, distance: 20},
@@ -277,13 +258,33 @@
      * Esto se llama antes de iniciar el juego
      */
     processing.setup = function () {
+      /* Se enfoca el canvas al iniciar el juego, para evitar la necesidad de
+      hacer click en él para que las teclas funcionen correctamente
+      */
       document.getElementById("canvas").focus();
       processing.frameRate(30);
+      // El tamaño de la pantalla es proporcional al tamaño de la ventana
       processing.size(window.innerWidth-20, window.innerHeight-20);
       processing.background(10, 200, 50);
       processing.state = {
-                          sound: new buzz.sound("web-lib/s2",{formats: ["mp3"],autoplay: true,preload: true}),
+                          /* Shut: Determina si las pistas de sonidp del juego deberían seguir repitiéndose.
+                          De ser verdadero, éstas no se repetirán más*/
+                          shut: false,
+                          // Paused: Determina si el juego está pausado o no
+                          paused: false,
+                          // Las pistas de sonido usadas en el juego
+                          sound: new buzz.sound("web-lib/s2",{formats: ["mp3"],autoplay: true,preload: true,volume: 50}),
+                          pause1: new buzz.sound("web-lib/pause1",{formats: ["wav"],autoplay: false,preload: false}),
+                          pause2: new buzz.sound("web-lib/pause2",{formats: ["wav"],autoplay: false,preload: false}),
+                          eat: new buzz.sound("web-lib/eat1",{formats: ["wav"],autoplay: false,preload: false}),
+                          swallow: new buzz.sound("web-lib/swallow1",{formats: ["wav"],autoplay: false,preload: false}),
+                          crash: new buzz.sound("web-lib/crash",{formats: ["wav"],autoplay: false,preload: false}),
+                          shrink: new buzz.sound("web-lib/shrink",{formats: ["wav"],autoplay: false,preload: false}),
+                          win: new buzz.sound("web-lib/win",{formats: ["wav"],autoplay: false,preload: false,loop: false}),
+                          lose: new buzz.sound("web-lib/lose",{formats: ["wav"],autoplay: false,preload: false,loop: false}),
+                          //El fondo de pantalla
                           stage: processing.loadImage("web-lib/wallpaper.gif"),
+                          // Los atributos del jugador 1
                           player1:{// Plump: segmento o segmentos del snake que están tragando algo
                           plump:[],
                           /* Eat: Determina si la serpiente se encuentra tragando o no.
@@ -291,11 +292,13 @@
                           adelante.
                           */
                           eat: false,
+
                           /* Kill: Determina si el juego debería terminar o no.
                           De ser verdadero, la snake se detiene y comienza a desintegrarse lentamente.
                           Al finalizar este proceso, over se vuelve verdadero, terminando el juego.
                           */
                           kill: false,
+
                           /* Dirección: La dirección que toma la cabeza de la serpiente.
                           En este proyecto, entendemos las direcciones como el número de pasos
                           que un objeto se mueve en el eje X y Y (La dirección izquierda vendría siendo X: -C y Y:0,
@@ -303,17 +306,22 @@
                           por tanto, la dirección es un objeto con los atributos X y Y.
                           */
                           dirección: {x: -speed, y:0},
+
                           /* Snake: Nuestra snake. Como valor inicial,
                           copia la constante previamente definida de snake
                           */
                           snake: snake,
+
                           // Keydown: Determina si hay una tecla presionada
                           keydown:false,
+
                           // Key: Determina qué tecla está presionada, o qué tecla deja de estarlo.
                           key:processing.LEFT,// Score: El puntaje del usuario
                           score: 0,
+
                           // Twist: El twist de nuestra snake explicado previamente
-                          twist: chosendif.twist,
+                          twist: 1.5,
+                          
                           /* Distance: La distancia entre la snake y la comida.
                           Si este valor llega a ser menor a la suma del radio de
                           la cabeza de la snake y el radio de la fruta, entendemos
@@ -321,19 +329,22 @@
                           */
                           distance: 50},
 
-
+                          // Los atributos del jugador 2
                           player2:{// Plump: segmento o segmentos del snake que están tragando algo
                           plump:[],
+
                           /* Eat: Determina si la serpiente se encuentra tragando o no.
                           De ser verdadero, ejecuta la función "eatSnake", que veremos más
                           adelante.
                           */
                           eat: false,
+
                           /* Kill: Determina si el juego debería terminar o no.
                           De ser verdadero, la snake se detiene y comienza a desintegrarse lentamente.
                           Al finalizar este proceso, over se vuelve verdadero, terminando el juego.
                           */
                           kill: false,
+
                           /* Dirección: La dirección que toma la cabeza de la serpiente.
                           En este proyecto, entendemos las direcciones como el número de pasos
                           que un objeto se mueve en el eje X y Y (La dirección izquierda vendría siendo X: -C y Y:0,
@@ -341,18 +352,24 @@
                           por tanto, la dirección es un objeto con los atributos X y Y.
                           */
                           dirección: {x: speed, y:0},
+
                           /* Snake: Nuestra snake. Como valor inicial,
                           copia la constante previamente definida de snake
                           */
                           snake: snake2,
+
                           // Keydown: Determina si hay una tecla presionada
                           keydown:false,
+
                           // Key: Determina qué tecla está presionada, o qué tecla deja de estarlo.
                           key:processing.LEFT,
+
                           // Score: El puntaje del usuario
                           score: 0,
+
                           // Twist: El twist de nuestra snake explicado previamente
-                          twist: chosendif.twist,
+                          twist: 1.5,
+                          
                           /* Distance: La distancia entre la snake y la comida.
                           Si este valor llega a ser menor a la suma del radio de
                           la cabeza de la snake y el radio de la fruta, entendemos
@@ -374,18 +391,17 @@
       
     }
 
-    /**
-    * Actualiza el mundo en cada tic del reloj. Retorna el nuevo stado del mundo
-    */
-    /* Aquí se añade parte del código que debería ir en onKeyEvent, con el fin de evitar el delay. Para ello, guardamos
-    las variables key y keydown en el world, que son evaluadas por el onTic para saber qué procesos ejecutar
+    /*
+    Contrato: syncUp: mundo, jugador, derecha, izquierda => jugador
+    Propósito: Modificar la dirección y posición de cierto jugador, dependiendo de las
+    teclas que haya presionado.
     */
     function syncUp(global,world,l,r)
     {
       if(world.keydown){
         switch (world.key) {
         
-        // Vamos a comenzar con la izquierda, es decir, girar en sentido de las manecillas del reloj
+        // Vamos a comenzar con la izquierda, es decir, girar en sentido contrario a las manecillas del reloj
         
         case l:
         // Se evalúa si la dirección se encuentra en el primer cuadrante
@@ -444,7 +460,7 @@
         */
         
         break;
-        // Ahora continuamos por la derecha, es decir, en sentido contrario a las manecillas del reloj
+        // Ahora continuamos por la derecha, es decir, en sentido de a las manecillas del reloj
         // Nuevamente, las condiciones y los returns son casi idénticos a los anteriores, a excepción de sus signos
         case r:
         if (world.dirección.x>0&&world.dirección.y>=0)
@@ -488,37 +504,46 @@
       }
       // En caso de que no esté presionada ni izquierda ni derecha, la snake simplemente avanzará.
       return Movement(global,world,"nothing",null,null);
-      
+    
+    /**
+    * Actualiza el mundo en cada tic del reloj. Retorna el nuevo stado del mundo
+    */
+    /* Aquí se añade parte del código que debería ir en onKeyEvent, con el fin de evitar el delay. Para ello, guardamos
+    las variables key y keydown en el world, que son evaluadas por el onTic para saber qué procesos ejecutar
+    */
     }
     processing.onTic = function (world) {
       return make(world,{player1: syncUp(world,world.player1,processing.LEFT,processing.RIGHT),player2: syncUp(world,world.player2,65,68)});
     }
 
     /**
-    * Actualiza el mundo cada vez que se oprime una tecla. Retorna el nuevo stado del mundo
+    * Actualiza el mundo cada vez que se oprime una tecla. Retorna el nuevo estado del mundo
     */
     processing.onKeyEvent = function (world, keyCode) {
       if (!world.over)
       {
         switch(keyCode)
       {
-        case processing.UP:
-        //El loop() que les mencioné anteriormente. Comienza a ejecutar indefinidamente la función draw()
-          processing.loop();
-          return make(world, {});
-          break;
-        case processing.DOWN:
-        //De forma similar, el noLoop() detiene el draw()
-          /*La razón por la cual arriba es "Play" y abajo "Pause" es pura coincidencia, producto del testeo.
-          Más tarde decidiremos un botón para detener y continuar el juego
-          */
+        case 32:
+        if (!world.paused)
+        {
+          world.pause1.play();
           processing.textSize(100)
           processing.textAlign(processing.CENTER)
           processing.fill(255,0,255);
           processing.text("PAUSE", (window.innerWidth-20)/2, (window.innerHeight-20)/2);
           processing.noLoop();
-          return make(world, {});
-          break;
+          world.sound.pause();
+          return make(world,{paused: true})
+        }
+        else
+        {
+          world.pause2.play();
+          processing.loop();
+          return make(world, {paused: false});
+        }
+        break;
+        
         case processing.LEFT:
         case processing.RIGHT:
         /*Para evitar el delay, cuando una tecla se presiona, el valor de keydown cambia a 
@@ -536,7 +561,7 @@
       else{
         if (keyCode==processing.ENTER)
         {
-          return window.open("interfazprueba.html","_self");
+          return window.open("index.html","_self");
         }
       }
       
@@ -551,11 +576,11 @@
     {
       if(player===processing.state.player1)
     {
-    processing.fill(255, 0, 125);
+    processing.fill(255, 0, 0);
     }
     else if(player===processing.state.player2)
     {
-      processing.fill(125, 0, 255);
+      processing.fill(0, 0, 255);
     }
     else{
       processing.fill(255,0,255)
@@ -575,9 +600,10 @@
   */
   processing.eatSnake2 = function(item,index,array)
   {
+    processing.state.swallow.play();
     if(!processing.state.player2.kill)
     {
-    processing.fill(125, 0, 255);
+    processing.fill(0, 0, 255);
   }
   else{
     processing.fill(158, 155, 147);
@@ -607,8 +633,8 @@
       processing.state = make(processing.state,
       {player2: make(processing.state.player2,{snake: 
       append(processing.state.player2.snake,
-      [{x: last(processing.state.player2.snake).x+opposite(last(processing.state.player2.snake).dirección.x),
-      y:last(processing.state.player2.snake).y+opposite(last(processing.state.player2.snake).dirección.y),
+      [{x: last(processing.state.player2.snake).x-last(processing.state.player2.snake).dirección.x,
+      y:last(processing.state.player2.snake).y-last(processing.state.player2.snake).dirección.y,
       dirección: last(processing.state.player2.snake).dirección,
       distance: 0}])})});
       }
@@ -631,9 +657,10 @@
   }
   processing.eatSnake = function(item,index,array)
   {
+    processing.state.swallow.play();
     if(!processing.state.player1.kill)
     {
-    processing.fill(255, 0, 125);
+    processing.fill(255, 0, 0);
   }
   else{
     processing.fill(158, 155, 147);
@@ -663,8 +690,8 @@
       processing.state = make(processing.state,
       {player1: make(processing.state.player1,{snake: 
       append(processing.state.player1.snake,
-      [{x: last(processing.state.player1.snake).x+opposite(last(processing.state.player1.snake).dirección.x),
-      y:last(processing.state.player1.snake).y+opposite(last(processing.state.player1.snake).dirección.y),
+      [{x: last(processing.state.player1.snake).x-last(processing.state.player1.snake).dirección.x,
+      y:last(processing.state.player1.snake).y-last(processing.state.player1.snake).dirección.y,
       dirección: last(processing.state.player1.snake).dirección,
       distance: 0}])})});
       }
@@ -733,7 +760,7 @@ if (length(world.snake)==1)
     if (window.localStorage.getItem(key)==null)
     {
       //En el caso contrario, lo crea y lo iguala a 0
-      window.localStorage.setItem(puntdif(),"0");
+      window.localStorage.setItem("MaxPuntaje","0");
     }
   }
  
@@ -759,12 +786,16 @@ if (length(world.snake)==1)
     processing.drawGame = function (world, txt) {
       world.sound.play();
       //Antes de cualquier cosa, revisamos si existe un Mejor Puntaje
-      processing.check(puntdif());
+      processing.check("MaxPuntaje");
       //Revisamos si el Puntaje actual es mayor al Mejor Puntaje
-      if (world.score>parseInt(window.localStorage.getItem(puntdif())))
+      if (world.player1.score>parseInt(window.localStorage.getItem("MaxPuntaje")))
       {
         //De ser cierto, redefinimos el Mejor Puntaje al Puntaje actual
-        window.localStorage.setItem(puntdif(),""+world.player1.score);
+        window.localStorage.setItem("MaxPuntaje",""+world.player1.score);
+      }
+      if(world.player2.score>parseInt(window.localStorage.getItem("MaxPuntaje")))
+      {
+        window.localStorage.setItem("MaxPuntaje",""+world.player2.score);
       }
       //Si el juego aún no ha terminado (si debería seguir ejecutandose)
       if (world.over==false)
@@ -777,27 +808,35 @@ if (length(world.snake)==1)
       if (selfColission(rest(world.player1.snake),world.player1.snake[0])&&world.player1.kill==false)
       {
         //De ser cierto, cancela el proceso de digestión, detiene al snake, e inicia a desintegrarla dentro de 1 segundo
+        world.crash.play();
         processing.state = make(world, {player1: make(world.player1,{eat: false,snake: world.player1.snake.map(processing.stop), dirección: {x: 0, y: 0}}),player2: make(world.player2,{eat: false,snake: world.player2.snake.map(processing.stop), dirección: {x: 0, y: 0}})});
         setTimeout(function(){processing.state=make(world, {player1: make(world.player1,{kill: true})})}, 1000);
       }
+
       if (selfColission(rest(world.player2.snake),world.player2.snake[0])&&world.player2.kill==false)
       {
         //De ser cierto, cancela el proceso de digestión, detiene al snake, e inicia a desintegrarla dentro de 1 segundo
+        world.crash.play();
         processing.state = make(world, {player2: make(world.player2,{eat: false,snake: world.player2.snake.map(processing.stop), dirección: {x: 0, y: 0}}),player1: make(world.player1,{eat: false,snake: world.player1.snake.map(processing.stop), dirección: {x: 0, y: 0}})});
         setTimeout(function(){processing.state=make(world, {player2: make(world.player2,{kill: true})})}, 1000);
       }
+
       if (externalColission(rest(world.player2.snake),world.player1.snake[0])&&world.player1.kill==false)
       {
         //De ser cierto, cancela el proceso de digestión, detiene al snake, e inicia a desintegrarla dentro de 1 segundo
+        world.crash.play();
         processing.state = make(world, {player1: make(world.player1,{eat: false,snake: world.player1.snake.map(processing.stop), dirección: {x: 0, y: 0}}),player2: make(world.player2,{eat: false,snake: world.player2.snake.map(processing.stop), dirección: {x: 0, y: 0}})});
         setTimeout(function(){processing.state=make(world, {player1: make(world.player1,{kill: true})})}, 1000);
       }
+
       if (externalColission(rest(world.player1.snake),world.player2.snake[0])&&world.player2.kill==false)
       {
         //De ser cierto, cancela el proceso de digestión, detiene al snake, e inicia a desintegrarla dentro de 1 segundo
+        world.crash.play();
         processing.state = make(world, {player2: make(world.player2,{eat: false,snake: world.player2.snake.map(processing.stop), dirección: {x: 0, y: 0}}),player1: make(world.player1,{eat: false,snake: world.player1.snake.map(processing.stop), dirección: {x: 0, y: 0}})});
         setTimeout(function(){processing.state=make(world, {player2: make(world.player2,{kill: true})})}, 1000);
       }
+
       /*Atención a este if. Se activa cuando la distancia entre la cabeza de la serpiente y la comida es 
       inferior a sus diámetros (cuando se la está "comiendo")
       */
@@ -808,6 +847,7 @@ if (length(world.snake)==1)
         2) Reubicar a la comida en una posición aleatoria
         3) Activar el proceso de digestión para posteriormente generar una nueva cola.
         */
+        world.eat.play();
         processing.state = make(world,
         {player1: make(world.player1, {eat: true,score:world.player1.score+100,distance: 10}),
         food: 
@@ -822,6 +862,7 @@ if (length(world.snake)==1)
         2) Reubicar a la comida en una posición aleatoria
         3) Activar el proceso de digestión para posteriormente generar una nueva cola.
         */
+        world.eat.play();
         processing.state = make(world,
         {player2: make(world.player2, {eat: true,score:world.player2.score+100,distance: 10}),
         food: 
@@ -832,11 +873,13 @@ if (length(world.snake)==1)
       //Si se ha dado la orden para desintegrar al snake
       if (world.player1.kill)
       {
+        world.shrink.play();
           processing.desintegrate(world.player1);
           fade(world.sound);
       }
       if (world.player2.kill)
       {
+        world.shrink.play();
           processing.desintegrate(world.player2);
           fade(world.sound);
       }
@@ -863,24 +906,28 @@ if (isEmpty(world.player1.plump))
         if (selfColission(rest(world.player1.snake),world.player1.snake[0])&&world.player1.kill==false)
       {
         //De ser cierto, cancela el proceso de digestión, detiene al snake, e inicia a desintegrarla dentro de 1 segundo
+        world.crash.play();
         processing.state = make(world, {player1: make(world.player1,{eat: false,snake: world.player1.snake.map(processing.stop), dirección: {x: 0, y: 0}}),player2: make(world.player2,{eat: false,snake: world.player2.snake.map(processing.stop), dirección: {x: 0, y: 0}})});
         setTimeout(function(){processing.state=make(world, {player1: make(world.player1,{kill: true})})}, 1000);
       }
       if (selfColission(rest(world.player2.snake),world.player2.snake[0])&&world.player2.kill==false)
       {
         //De ser cierto, cancela el proceso de digestión, detiene al snake, e inicia a desintegrarla dentro de 1 segundo
+        world.crash.play();
         processing.state = make(world, {player2: make(world.player2,{eat: false,snake: world.player2.snake.map(processing.stop), dirección: {x: 0, y: 0}}),player1: make(world.player1,{eat: false,snake: world.player1.snake.map(processing.stop), dirección: {x: 0, y: 0}})});
         setTimeout(function(){processing.state=make(world, {player2: make(world.player2,{kill: true})})}, 1000);
       }
       if (externalColission(rest(world.player2.snake),world.player1.snake[0])&&world.player1.kill==false)
       {
         //De ser cierto, cancela el proceso de digestión, detiene al snake, e inicia a desintegrarla dentro de 1 segundo
+        world.crash.play();
         processing.state = make(world, {player1: make(world.player1,{eat: false,snake: world.player1.snake.map(processing.stop), dirección: {x: 0, y: 0}}),player2: make(world.player2,{eat: false,snake: world.player2.snake.map(processing.stop), dirección: {x: 0, y: 0}})});
         setTimeout(function(){processing.state=make(world, {player1: make(world.player1,{kill: true})})}, 1000);
       }
       if (externalColission(rest(world.player1.snake),world.player2.snake[0])&&world.player2.kill==false)
       {
         //De ser cierto, cancela el proceso de digestión, detiene al snake, e inicia a desintegrarla dentro de 1 segundo
+        world.crash.play();
         processing.state = make(world, {player2: make(world.player2,{eat: false,snake: world.player2.snake.map(processing.stop), dirección: {x: 0, y: 0}}),player1: make(world.player1,{eat: false,snake: world.player1.snake.map(processing.stop), dirección: {x: 0, y: 0}})});
         setTimeout(function(){processing.state=make(world, {player2: make(world.player2,{kill: true})})}, 1000);
       }
@@ -891,8 +938,10 @@ if (isEmpty(world.player1.plump))
         2) Reubicar a la comida en una posición aleatoria
         3) Activar el proceso de digestión para posteriormente generar una nueva cola.
         */
+        world.eat.play();
         processing.state = make(world,
-        {player1: make(world.player1, {eat: true,score:world.player1.score+100,distance: 10}),
+        {player1: make(world.player1, {plump: invertir(cons(-1,invertir(world.player1.plump))),
+        eat: true,score:world.player1.score+100,distance: 10}),
         food: 
         {x: processing.random(50, window.innerWidth-70),
         y: processing.random(50, window.innerHeight-70)}
@@ -905,6 +954,7 @@ if (isEmpty(world.player1.plump))
         2) Reubicar a la comida en una posición aleatoria
         3) Activar el proceso de digestión para posteriormente generar una nueva cola.
         */
+        world.eat.play();
         processing.state = make(world,
         {player2: make(world.player2, {eat: true,score:world.player2.score+100,distance: 10}),
         food: 
@@ -935,13 +985,30 @@ if (isEmpty(world.player2.plump))
         if (selfColission(rest(world.player1.snake),world.player1.snake[0])&&world.player1.kill==false)
       {
         //De ser cierto, cancela el proceso de digestión, detiene al snake, e inicia a desintegrarla dentro de 1 segundo
-        processing.state = make(world, {player1: make(world.player1,{eat: false,snake: world.player1.snake.map(processing.stop), dirección: {x: 0, y: 0}})});
+        world.crash.play();
+        processing.state = make(world, {player1: make(world.player1,{eat: false,snake: world.player1.snake.map(processing.stop), dirección: {x: 0, y: 0}}),player2: make(world.player2,{eat: false,snake: world.player2.snake.map(processing.stop), dirección: {x: 0, y: 0}})});
         setTimeout(function(){processing.state=make(world, {player1: make(world.player1,{kill: true})})}, 1000);
       }
       if (selfColission(rest(world.player2.snake),world.player2.snake[0])&&world.player2.kill==false)
       {
         //De ser cierto, cancela el proceso de digestión, detiene al snake, e inicia a desintegrarla dentro de 1 segundo
-        processing.state = make(world, {player2: make(world.player2,{eat: false,snake: world.player2.snake.map(processing.stop), dirección: {x: 0, y: 0}})});
+        world.crash.play();
+        processing.state = make(world, {player2: make(world.player2,{eat: false,snake: world.player2.snake.map(processing.stop), dirección: {x: 0, y: 0}}),player1: make(world.player1,{eat: false,snake: world.player1.snake.map(processing.stop), dirección: {x: 0, y: 0}})});
+        setTimeout(function(){processing.state=make(world, {player2: make(world.player2,{kill: true})})}, 1000);
+      }
+      if (externalColission(rest(world.player2.snake),world.player1.snake[0])&&world.player1.kill==false)
+      {
+        //De ser cierto, cancela el proceso de digestión, detiene al snake, e inicia a desintegrarla dentro de 1 segundo
+        world.crash.play();
+        processing.state = make(world, {player1: make(world.player1,{eat: false,snake: world.player1.snake.map(processing.stop), dirección: {x: 0, y: 0}}),player2: make(world.player2,{eat: false,snake: world.player2.snake.map(processing.stop), dirección: {x: 0, y: 0}})});
+        setTimeout(function(){processing.state=make(world, {player1: make(world.player1,{kill: true})})}, 1000);
+      }
+
+      if (externalColission(rest(world.player1.snake),world.player2.snake[0])&&world.player2.kill==false)
+      {
+        //De ser cierto, cancela el proceso de digestión, detiene al snake, e inicia a desintegrarla dentro de 1 segundo
+        world.crash.play();
+        processing.state = make(world, {player2: make(world.player2,{eat: false,snake: world.player2.snake.map(processing.stop), dirección: {x: 0, y: 0}}),player1: make(world.player1,{eat: false,snake: world.player1.snake.map(processing.stop), dirección: {x: 0, y: 0}})});
         setTimeout(function(){processing.state=make(world, {player2: make(world.player2,{kill: true})})}, 1000);
       }
       if (world.player1.distance<=size*2)
@@ -951,6 +1018,7 @@ if (isEmpty(world.player2.plump))
         2) Reubicar a la comida en una posición aleatoria
         3) Activar el proceso de digestión para posteriormente generar una nueva cola.
         */
+        world.eat.play();
         processing.state = make(world,
         {player1: make(world.player1, {eat: true,score:world.player1.score+100,distance: 10}),
         food: 
@@ -965,8 +1033,10 @@ if (isEmpty(world.player2.plump))
         2) Reubicar a la comida en una posición aleatoria
         3) Activar el proceso de digestión para posteriormente generar una nueva cola.
         */
+        world.eat.play();
         processing.state = make(world,
-        {player2: make(world.player2, {eat: true,score:world.player2.score+100,distance: 10}),
+        {player2: make(world.player2, {plump: invertir(cons(-1,invertir(world.player2.plump))),
+          eat: true,score:world.player2.score+100,distance: 10}),
         food: 
         {x: processing.random(50, window.innerWidth-70),
         y: processing.random(50, window.innerHeight-70)}
@@ -994,7 +1064,7 @@ if (isEmpty(world.player2.plump))
       processing.text(world.player2.score, 0,0);
       processing.fill(255,0,255);
       processing.textAlign(processing.CENTER,processing.TOP);
-      processing.text("BEST SCORE: "+window.localStorage.getItem(puntdif()), (window.innerWidth-20)/2, 0);
+      processing.text("BEST SCORE: "+window.localStorage.getItem("MaxPuntaje"), (window.innerWidth-20)/2, 0);
       processing.fill(255,0,0);
       processing.textAlign(processing.RIGHT,processing.TOP)
       processing.text(world.player1.score,window.innerWidth-20,0)
@@ -1005,33 +1075,54 @@ if (isEmpty(world.player2.plump))
         fade(world.sound);
         setTimeout(function(){
         processing.background(0,0,0);
-        processing.textSize(window.innerWidth/100*window.innerHeight/50)
+        processing.textSize(window.innerWidth/100*window.innerHeight/100)
         processing.textAlign(processing.CENTER,processing.CENTER);
         if (world.player1.kill&&!world.player2.kill)
         {
+          if (!world.shut)
+          {
+          world.win.play();
+          }
           processing.fill(0,0,255)
           processing.text("BLUE PLAYER\nWINS", (window.innerWidth-2)/2, (window.innerHeight-2)/2)
         }
         else if(world.player2.kill&&!world.player1.kill)
         {
+          if (!world.shut)
+          {
+          world.win.play();
+          }
           processing.fill(255,0,0)
           processing.text("RED PLAYER\nWINS", (window.innerWidth-2)/2, (window.innerHeight-2)/2)
         }
         else if (world.player1.score>world.player2.score)
         {
+          if (!world.shut)
+          {
+          world.win.play();
+          }
           processing.fill(255,0,0)
           processing.text("RED PLAYER\nWINS", (window.innerWidth-2)/2, (window.innerHeight-2)/2)
         }
         else if(world.player2.score>world.player1.score)
         {
+          if (!world.shut)
+          {
+          world.win.play();
+          }
           processing.fill(0,0,255);
           processing.text("BLUE PLAYER\nWINS", (window.innerWidth-2)/2, (window.innerHeight-2)/2)
         }
         else
         {
+          if (!world.shut)
+          {
+          world.lose.play();
+          }
           processing.fill(255,0,255);
           processing.text("GAME OVER", (window.innerWidth-2)/2, (window.innerHeight-2)/2)
         }
+        processing.state = make(world,{shut: true})
           ;
         },500);
       }
