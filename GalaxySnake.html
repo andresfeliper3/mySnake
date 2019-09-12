@@ -207,7 +207,9 @@
     }
   }
 
-  // Evalúa si la serpiente se está chocacdo consigo misma
+  /* Contrato: selfColission: cuerpo snake, cabeza => booleano
+  Propósito: Determinar si el snake está colisionando consigo mismo
+  */
   function selfColission(snake,head){
     if (isEmpty(snake)){
       return false;
@@ -217,7 +219,9 @@
     }
     return selfColission(rest(snake),head);
   }
-
+  /* Contrato: externalColission:
+  Propósito: Determinar si el snake está colisionando con el snake del oponente
+  */
   function externalColission(snake,head){
     if (isEmpty(snake))
     {
@@ -566,7 +570,9 @@
       }
       
     }
-    // Esta función dibuja un determinado segmento del snake
+    /*Contrato: drawSnake: jugador => Nada
+    Propósito: Dibujar al snake del jugador cuando no está comiendo
+    */
      processing.drawSnake = function (player)
   {
     player.snake.forEach(item=>{
@@ -595,9 +601,9 @@
   }
     })
   }
-  /* Esta función dibuja un determinado segmento del snake cuando éste está comiendo.
-  Está basada en la función anterior
-  */
+  /*Contrato: drawSnake: jugador => Nada
+    Propósito: Dibujar al snake del jugador 2 cuando está comiendo
+    */
   processing.eatSnake2 = function(item,index,array)
   {
     processing.state.swallow.play();
@@ -655,6 +661,9 @@
     processing.ellipse(item.x,item.y,size,size);
     }
   }
+  /*Contrato: drawSnake: jugador => Nada
+    Propósito: Dibujar al snake del jugador 1 cuando no está comiendo
+    */
   processing.eatSnake = function(item,index,array)
   {
     processing.state.swallow.play();
@@ -712,7 +721,9 @@
     processing.ellipse(item.x,item.y,size,size);
     }
   }
-  //Esta función desaparece al snake segmento por segmento. Se ejecuta cuando pierde el juego.
+  /*Contrato: desintegrate: jugador => Nada
+  Propósito: Desintegrar lentamente al snake del jugador cuando el juego ha terminado
+  */
   processing.desintegrate = function (world)
   { 
     if (world==processing.state.player1)
@@ -748,7 +759,9 @@ if (length(world.snake)==1)
     }
     
     }
-    //Esta función detiene al snake sin detener el draw (igualando su velocidad a 0)
+  /*Contrato: stop: segmento => segmento
+  Propósito: Detener un determinado segmento de un snake
+  */
   }
   processing.stop = function (item)
   {
@@ -764,8 +777,9 @@ if (length(world.snake)==1)
     }
   }
  
-   //Retorna la tecla soltada y determina que ya no hay teclas presionadas
-  //Para más información de esta función, revisar su definición al final
+  /*Contrato: offKeyEvent: mundo, tecla => mundo
+  Propósito: Modificar el mundo dependiendo de la tecla que se haya soltado
+  */
   processing.offKeyEvent = function (world, keyCode){
     switch(keyCode){
     case processing.LEFT:
@@ -783,7 +797,7 @@ if (length(world.snake)==1)
   }
 
     // Dibuja algo en el canvas. Aqui se pone todo lo que quieras pintar
-    processing.drawGame = function (world, txt) {
+    processing.drawGame = function (world) {
       world.sound.play();
       //Antes de cualquier cosa, revisamos si existe un Mejor Puntaje
       processing.check("MaxPuntaje");
@@ -1051,10 +1065,8 @@ if (isEmpty(world.player2.plump))
       processing.drawSnake(world.player1);
       processing.drawSnake(world.player2);
       }
-      /* Se dibuja la comida, el Puntaje y el Mejor Puntaje
-      El tercer texto que se dibuja es útil para probar el funcionamiento de las constantes y atributos,
-      y verificar que estén funcionando correctamente. Se eliminará a la hora de exponer el snake.
-      */
+      // Se dibuja la comida, el Puntaje y el Mejor Puntaje
+      
       processing.fill(0, 255,0);
       processing.ellipse(world.food.x,world.food.y,size*3,size*3);
       processing.textSize(30)
@@ -1133,7 +1145,7 @@ if (isEmpty(world.player2.plump))
     // Esta es la función que pinta todo. Se ejecuta 60 veces por segundo. 
     // No cambie esta función. Su código debe ir en drawGame
     processing.draw = function () {
-      processing.drawGame(processing.state, processing.state.player1.eat);
+      processing.drawGame(processing.state);
       processing.state = processing.onTic(processing.state);
     };
 

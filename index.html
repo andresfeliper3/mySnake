@@ -33,7 +33,7 @@
       processing.frameRate(60);
       processing.size(window.innerWidth-20, window.innerHeight-20);
       processing.background(10, 200, 50);
-      
+      // Cargamos la fuente, las imagenes y las pistas de sonido
       MyFont = processing.createFont("Retro Gaming");
       processing.state = {title: {rgb: [0,255,0],font: processing.createFont("Retro Gaming")},frame: 0, play: true,
       ovni: processing.loadImage("img/OVNI_BOSS.png"),
@@ -51,6 +51,8 @@
     /**
     * Actualiza el mundo en cada tic del reloj. Retorna el nuevo stado del mundo
     */
+    //El color del título cambia progresivamente cada tic con la función titlecolor
+    
     processing.onTic = function (world) {
       
       if (world.frame<27)
@@ -59,7 +61,10 @@
       }
       return make(world, {title: make(world.title,{rgb: titlecolor(world.title.rgb)}),frame: 0});
     }
-
+    /*
+    Contrato: titlecolor: lista => lista
+    Propósito: Permitir que el título recorra un amplio gama de colores
+    */
     function titlecolor(color)
     {
         if(color[0]==255&&color[1]<255&&color[2]==0)
@@ -90,6 +95,8 @@
     /**
     * Actualiza el mundo cada vez que se oprime una tecla. Retorna el nuevo stado del mundo
     */
+    //Dependiendo del estado del world, las teclas pueden realizar funciones distintas
+    
     processing.onKeyEvent = function (world, keyCode) {
       switch(keyCode)
       {
@@ -402,7 +409,7 @@
           processing.fill(255,255,255)
           processing.textAlign(processing.RIGHT,processing.CENTER)
           processing.textSize(window.innerHeight/160*window.innerWidth/160)
-          processing.text("PRODUCED BY:\nART DESIGN\nPROGRAMMERS:\n\n\n\n\nMUSIC:\n", window.innerWidth*2/5,window.innerHeight*2/3)
+          processing.text("PRODUCED BY:\nART DESIGN:\nPROGRAMMERS:\n\n\n\n\nMUSIC:\n", window.innerWidth*2/5,window.innerHeight*2/3)
           processing.textAlign(processing.LEFT,processing.CENTER)
           processing.text("NOOB GAMES\nJOSÉ DAVID BARONA HERNÁNDEZ\nANDRÉS FELIPE RINCÓN\n"+
           "DIEGO FABIÁN LEDESMA\nJOSÉ DAVID BARONA HERNÁNDEZ\nEDWIN LEONARDO CUARAN\n"+
