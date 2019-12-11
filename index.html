@@ -31,7 +31,7 @@
     processing.setup = function () {
       document.getElementById("canvas").focus();
       processing.frameRate(60);
-      processing.size(window.innerWidth-20, window.innerHeight-20);
+      processing.size(window.innerWidth-10, window.innerHeight-10);
       processing.background(10, 200, 50);
       // Cargamos la fuente, las imagenes y las pistas de sonido
       MyFont = processing.createFont("Retro Gaming");
@@ -42,6 +42,7 @@
       wall: processing.loadImage("img/asteroid.png"),
       avocato: processing.loadImage("img/aguacate.png"),
       life: processing.loadImage("img/heart.png"),
+      univalle: processing.loadImage("img/logounivalle.jpg"),
       sound: new buzz.sound("web-lib/s1",{formats: ["mp3"],autoplay: true,preload: true,volume: 50}),
       select: new buzz.sound("web-lib/menu_select",{formats: ["mp3"]}),
       move: new buzz.sound("web-lib/menu_move",{formats: ["mp3"],volume: 100}),
@@ -403,6 +404,7 @@
           else{
             processing.fill(255,255,0)
           }
+          processing.image(world.univalle,window.innerWidth*0.35-(window.innerWidth/100*window.innerHeight/100),window.innerHeight*0.64-(window.innerWidth/100*window.innerHeight/100)/2,window.innerWidth/70*window.innerHeight/70,window.innerWidth/70*window.innerHeight/70)
           processing.textAlign(processing.LEFT,processing.BOTTOM)
           processing.textSize(window.innerHeight/140*window.innerWidth/140)
           processing.text("BACK",20,window.innerHeight-20)
@@ -411,7 +413,7 @@
           processing.textSize(window.innerHeight/160*window.innerWidth/160)
           processing.text("PRODUCED BY:\nART DESIGN:\nPROGRAMMERS:\n\n\n\n\nMUSIC:\n", window.innerWidth*2/5,window.innerHeight*2/3)
           processing.textAlign(processing.LEFT,processing.CENTER)
-          processing.text("NOOB GAMES\nJOSÉ DAVID BARONA HERNÁNDEZ\nANDRÉS FELIPE RINCÓN\n"+
+          processing.text("NOOB GAMES UNIVALLE\nJOSÉ DAVID BARONA HERNÁNDEZ\nANDRÉS FELIPE RINCÓN\n"+
           "DIEGO FABIÁN LEDESMA\nJOSÉ DAVID BARONA HERNÁNDEZ\nEDWIN LEONARDO CUARAN\n"+
           "SAMUEL RIASCOS PRIETO\nINFECTED MUSHROOM\n7 MINUTES DEAD",window.innerWidth*3/7,window.innerHeight*2/3)
           break;
@@ -521,7 +523,7 @@
       processing.fill(255,255,255)
       processing.textSize(window.innerHeight/32)
       processing.textAlign(processing.CENTER);
-      processing.text("©NOOB GAMES 2019",(window.innerWidth-20)*9/10,(window.innerHeight-20)*99/100);
+      processing.text("©UNIVALLE 2019",(window.innerWidth-20)*9/10,(window.innerHeight-20)*99/100);
       world.sound.play();
       
     }
